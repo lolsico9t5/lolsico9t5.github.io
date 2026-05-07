@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- this is a comment for human! -->
+<html lang="en">
+<head>
+    <title>Benjamin's Resume</title>
+    <link rel="stylesheet" href="css/master.css">
+</head>
+<body>
+    <hr>
+    <img src="images/headshot.jpg" alt="Benjamin's headshot" width="20%">
+    
+    <h1>Benjamin Franklin</h1>
+    <h4>Computer Science and Engineering Student</h4>
+    <p>Email: <a href="mailto:abf2k07@gmail.com" target="_blank">abf2k07@gmail.com</a></p>
+    
+    <!-- don't post physical address, personal phone number or other personal information on the web! -->
+    
+    <h2>Portfolio</h2>
+    <h3>GitHub: <a href="https://github.com/lolsico9t5" target="_blank">My GitHub Profile</a></h3>
+    
+    <h2>Education</h2>
+    <h3>Sri Krishna College of Engineering and Technology (SKCET), Coimbatore</h3>
+    <h4>B.E. Computer Science and Engineering</h4>
+    
+    <h2>Experience & Projects</h2>
+    <h3>Software Engineering Virtual Experience</h3>
+    <h4>JP Morgan</h4>
+    <h5>May 2026</h5>
+    <ul>
+        <li>Completed Midas Core tasks focusing on Spring Boot microservices.</li>
+    </ul>
+    
+    <h2>Certifications & Training</h2>
+    <ul>
+        <li><strong>Meta Front-End Development</strong> - Coursera</li>
+        <li><strong>Cloud Computing Fundamentals</strong> - IBM SkillsBuild</li>
+        <li><strong>GIT Certification</strong> - Infosys Springboard</li>
+    </ul>
+
+    <footer>
+        <hr>
+        <p><a href="index.html">Back to my portal</a></p>
+    </footer>
+</body>
+</html>
