@@ -1,4 +1,3 @@
-import { createWingRig } from "./wing-rig.js";
 import { planEdgeTurn, advanceEdgeTurn } from "./flight-turn.js";
 import { createBreath } from "./fire.js";
 
@@ -8,7 +7,6 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   const flight = root.querySelector("#flight");
   const dragon = root.querySelector("#creature");
   const rigCanvas = root.querySelector("#rig");
-  const texture = root.querySelector("#texture");
   const body = dragon.querySelector(".dragon-body");
   const sidePose = dragon.querySelector(".side-pose");
   function loadPose(filename) {
@@ -169,19 +167,19 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     const speed=Math.hypot(vx,vy);
     if(Math.abs(vx)>18) face=Math.sign(vx);
     let desiredHeading=face>0 ? 0 : Math.PI;
-    if(drag && speed<36) {
-      if(x-box.left<7 && face<0) desiredHeading=Math.PI*.61;
-      if(box.right-x<7 && face>0) desiredHeading=Math.PI*.39;
-    }
     if(speed>24 || (banking && speed>9)) {
-      const vertical=vy*(banking?1:.68);
-      desiredHeading=Math.acos(clamp(vx/Math.max(1,Math.hypot(vx,vertical)),-1,1));
+      // Down-screen travel brings the chest towards the viewer. Up-screen shows the back.
+      desiredHeading=Math.atan2(vy*(banking?.92:.62),vx);
+    } else if(drag && speed<36) {
+      if(x-box.left<7 && face<0) desiredHeading=Math.PI*.67;
+      if(box.right-x<7 && face>0) desiredHeading=Math.PI*.33;
     }
-    [heading,headingRate]=follow(heading,headingRate,desiredHeading,dt,7.2);
-    heading=clamp(heading,0,Math.PI);
-    const targetPitch=clamp(Math.atan2(vy,Math.max(65,Math.abs(vx))),-.85,.78);
-    [pitch,pitchRate]=follow(pitch,pitchRate,targetPitch,dt,8);
-    roll+=(-clamp(headingRate*.16,-.66,.66)-roll)*blend(7,dt);
+    let arc=Math.atan2(Math.sin(desiredHeading-heading),Math.cos(desiredHeading-heading));
+    if(Math.abs(arc)>Math.PI-.035 && Math.abs(headingRate)>.22) arc=Math.sign(headingRate)*Math.abs(arc);
+    [heading,headingRate]=follow(heading,headingRate,heading+arc,dt,5.9);
+    const targetPitch=clamp(Math.atan2(vy,Math.max(95,Math.abs(vx)))*.64,-.54,.51);
+    [pitch,pitchRate]=follow(pitch,pitchRate,targetPitch,dt,7.4);
+    roll+=(-clamp(headingRate*.19,-.76,.76)-roll)*blend(5.9,dt);
     tailLean+=(clamp(pitchRate*.18+roll*.54,-.7,.7)-tailLean)*blend(3.8,dt);
     if(!drag && !placed) constrain(box);
   }
@@ -203,6 +201,12 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     const lift=active && !drag && !reduced.matches ? Math.cos(2*phase-.72)*size*.010*wingLoad : 0;
     const bodyY=y+lift, angle=pitch*yaw+roll*Math.sin(heading);
     moveBody();
+    if(rig && !contextLost) {
+      body.style.transform='translateY('+lift+'px)';
+      const nozzle=rig.render({dt,heading,pitch,roll,pace,heat,wingLoad,tailLean,size});
+      effects.draw(dt,{x:x+nozzle.x,y:bodyY+nozzle.y,dx:nozzle.dx,dy:nozzle.dy},size,active?heat:0);
+      return;
+    }
     body.style.transform='translateY('+lift+'px) rotate('+angle+'rad)';
     const havePoses=turnTextures.every(image=>image.complete && image.naturalWidth);
     const side=havePoses ? smooth(.66,.91,extent) : 1;
@@ -217,11 +221,6 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     quarterPose.style.transform='translateX('+(noseX-.341*size*quarterWidth)+'px) scaleX('+quarterWidth+')';
     frontPose.style.opacity=front;
     frontPose.style.transform='translateX('+noseX+'px) scaleX('+(1-.15*extent)+')';
-    rig?.(phase,bank,heat,pace,wingLoad,[
-      {weight:side,shift:noseX/size-.434*sideWidth,scale:sideWidth},
-      {weight:quarter,shift:noseX/size-.341*quarterWidth,scale:quarterWidth},
-      {weight:front,shift:noseX/size,scale:1-.15*extent}
-    ],tailLean);
     const beat=Math.sin(phase*2+.5)*.010-bank*.008;
     const mx=noseX-side*.011*heat*size*sign;
     const my=(.051+side*.86*(beat-.010*heat))*size*.5;
@@ -264,7 +263,7 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     dragon.hidden=!value; fire.hidden=!value; land.textContent=value?"Land dragon":"Launch dragon";
     effects.clear();previous=0;
     if(!value) { cancelAnimationFrame(frame);frame=0;showHelp(false); }
-    else {resize();request();}
+    else {resize();mountRig();request();}
   }
   dragon.addEventListener("pointerdown",e=>{
     if(!e.isPrimary || e.button!==0 || drag) return;
@@ -358,7 +357,11 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     lastPreference=reduced.matches; demo=false; setActive(!lastPreference);
   }
   reduced.addEventListener("change",applyMotionPreference,events);
-  rigCanvas.addEventListener("webglcontextlost",e=>{e.preventDefault();rig=null;if(!lifecycle.signal.aborted) showFallback();});
+  let contextLost=false, loading=false;
+  rigCanvas.addEventListener("webglcontextlost",e=>{
+    e.preventDefault();contextLost=true;
+    if(!lifecycle.signal.aborted) showFallback();
+  },events);
   function showFallback() {
     dragon.classList.remove("rigged");
     // The same skinned poses are available as compact loops on software-only devices.
@@ -371,23 +374,34 @@ export function startFlight(root, heroElement, assetURL = name => name) {
       image.decode().then(()=>layer.classList.add("has-sprite")).catch(()=>{});
     });
   }
-  function mountRig() {
-    if(lifecycle.signal.aborted) return;
-    try {rig=createWingRig(rigCanvas,texture,turnTextures);} catch {rig=null;}
-    if(rig) dragon.classList.add("rigged"); else showFallback();
-    paint(0);request();
+  async function mountRig() {
+    if(loading || lifecycle.signal.aborted || !active) return;
+    loading=true;
+    try {
+      if(!rig) {
+        const {createDragonModel}=await import("./dragon-model.js");
+        if(lifecycle.signal.aborted) return;
+        const model=await createDragonModel(rigCanvas,assetURL("flight-dragon.glb"));
+        if(lifecycle.signal.aborted) {model.dispose();return;}
+        rig=model;
+      }
+      if(!contextLost) dragon.classList.add("rigged");
+    } catch {
+      if(!lifecycle.signal.aborted) showFallback();
+    } finally { loading=false; }
+    if(!lifecycle.signal.aborted) {paint(0);request();}
   }
-  rigCanvas.addEventListener("webglcontextrestored",mountRig);
+  rigCanvas.addEventListener("webglcontextrestored",()=>{
+    contextLost=false;mountRig();
+  },events);
   flight.hidden=false;
   resize();setActive(active);
   window.addEventListener("resize",resize,events);
-  Promise.all([texture,...turnTextures].map(image=>image.decode()))
-    .then(mountRig).catch(()=>{if(!lifecycle.signal.aborted) showFallback();});
 
   return () => {
     lifecycle.abort();
     active=false; clearInputs(); cancelAnimationFrame(frame); effects.clear();
     // Release GPU resources when the host navigates away and removes the overlay.
-    if(rig) rigCanvas.getContext("webgl")?.getExtension("WEBGL_lose_context")?.loseContext();
+    rig?.dispose();
   };
 }

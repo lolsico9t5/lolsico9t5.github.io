@@ -50,8 +50,8 @@ body { margin: 0; isolation: isolate; font-size: 16px; line-height: 1.55; }
 .profile code { background: #222737; padding: .16em .38em; border-radius: 5px; font-size: .86em; }
 a { color: #b5c9ff; text-underline-offset: 3px; }
 a:hover { color: #e4d8ff; }
-.profile a, .back a { position: relative; z-index: 11; }
-.back { max-width: 930px; margin: 12px auto 0; padding: 0 18px 120px; font-size: 14px; }
+.profile a { position: relative; z-index: 11; }
+body { padding-bottom: 110px; }
 :focus-visible { outline: 2px solid #ffdeb6; outline-offset: 4px; }
 /* Keep labeled links reachable while the dragon crosses them; the flight controls sit above both. */
 #flight { position: absolute; inset: 0; pointer-events: none; }
@@ -101,5 +101,5 @@ a:hover { color: #e4d8ff; }
 @media (max-width: 700px) {
   .profile { border: 0; border-radius: 0; margin: 0 auto; }
   .profile td, .profile th { padding: 5px 8px; }
-  .back { padding-bottom: 148px; }
+  body { padding-bottom: 128px; }
 }

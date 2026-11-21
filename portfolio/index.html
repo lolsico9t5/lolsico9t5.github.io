@@ -8,7 +8,7 @@
   <meta name="description" content="Second-year Computer Science and Engineering Student at SKCET">
   <link rel="canonical" href="https://lolsico9t5.github.io/portfolio/">
   <link rel="icon" href="dragon.webp" type="image/webp">
-  <link rel="stylesheet" href="scene.css">
+  <link rel="stylesheet" href="scene.css?v=6">
 </head>
 <body>
   <div id="deep-sky" aria-hidden="true"><canvas id="stars"></canvas></div>
@@ -90,7 +90,7 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
   <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="assets/still/streak-orbit.webp">
     <img src="assets/streak-orbit.svg" width="620" align="top" alt="">
-  </picture><br><img id="activity-card" src="assets/activity-snapshot.svg" data-live="https://camo.githubusercontent.com/a9a03524fceb4d25aa0a5fd2934b78bf9aa5fce0ec209d6d8f27ea26fb396ce3/68747470733a2f2f73747265616b2d73746174732e64656d6f6c61622e636f6d2f3f757365723d6c6f6c7369636f397435266261636b67726f756e643d31323135323926626f726465723d353835373737267374726f6b653d3433343536352672696e673d42384241464626666972653d463342444344266375727253747265616b4e756d3d463446324646266375727253747265616b4c6162656c3d46344632464626736964654e756d733d46464443423826736964654c6162656c733d4634463246462664617465733d43384343444626626f726465725f7261646975733d3426636172645f77696474683d3535302674696d657a6f6e653d417369612532464b6f6c6b6174612664697361626c655f616e696d6174696f6e733d66616c7365" data-still="https://camo.githubusercontent.com/bc7852cc166f7319f608a0a8342d45582caa5a43eccf5616dfd5cc7fac60148a/68747470733a2f2f73747265616b2d73746174732e64656d6f6c61622e636f6d2f3f757365723d6c6f6c7369636f397435266261636b67726f756e643d31323135323926626f726465723d353835373737267374726f6b653d3433343536352672696e673d42384241464626666972653d463342444344266375727253747265616b4e756d3d463446324646266375727253747265616b4c6162656c3d46344632464626736964654e756d733d46464443423826736964654c6162656c733d4634463246462664617465733d43384343444626626f726465725f7261646975733d3426636172645f77696474683d3535302674696d657a6f6e653d417369612532464b6f6c6b6174612664697361626c655f616e696d6174696f6e733d74727565" width="620" align="top" alt="GitHub activity for lolsico9t5: total contributions, current streak, and longest streak">
+  </picture><br><img id="activity-card" src="assets/activity-snapshot.svg" data-live-streak="https://raw.githubusercontent.com/lolsico9t5/lolsico9t5/activity-card/github-streak.svg" width="620" align="top" alt="GitHub activity for lolsico9t5: total contributions, current streak, and longest streak">
 </p>
 <h2 id="contact"><picture><img src="assets/icons/contact.svg" width="36" height="28" align="texttop" alt=""></picture>Get in touch</h2>
 <p><a href="https://www.linkedin.com/in/benjamin-franklin-a-4b272b391/" rel="nofollow"><picture><img src="assets/links/linkedin.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>LinkedIn</strong></a> · <a href="mailto:abf2k07@gmail.com"><picture><img src="assets/links/email.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Email</strong></a> · <a href="https://www.instagram.com/lol_sico_9t5/" rel="nofollow"><picture><img src="assets/links/instagram.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Instagram</strong></a> · <a href="https://github.com/lolsico9t5?tab=repositories"><picture><img src="assets/links/github.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>GitHub</strong></a></p>
@@ -119,24 +119,11 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
       </div>
     </aside>
   </div>
-  <footer class="back"><a href="https://github.com/lolsico9t5">Back to GitHub ↗</a></footer>
   <script type="module">
     import "./sky.js";
-    import { startFlight } from "./scene.js";
+    import { startFlight } from "./scene.js?v=6";
     startFlight(document, document.querySelector(".profile h1"));
-    const activity = document.getElementById("activity-card");
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    async function refreshActivity() {
-      const url = motion.matches ? activity.dataset.still : activity.dataset.live;
-      const image = new Image();
-      image.src = url;
-      try {
-        await image.decode();
-        if (url === (motion.matches ? activity.dataset.still : activity.dataset.live)) activity.src = url;
-      } catch { /* The bundled activity card is already visible. */ }
-    }
-    motion.addEventListener("change", refreshActivity);
-    refreshActivity();
+    import "./activity.js";
   </script>
 </body>
 </html>
