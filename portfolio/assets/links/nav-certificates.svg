@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="119" height="34" viewBox="0 0 119 34" role="img" aria-labelledby="label">
+  <title id="label">Certificates</title>
+  <defs><linearGradient id="enamel" x2=".95" y2=".8"><stop stop-color="#373153"/><stop offset="1" stop-color="#15182c"/></linearGradient></defs>
+  <rect x=".8" y="1.8" width="117.4" height="30.4" rx="15.2" fill="url(#enamel)" stroke="#c3b4fa" stroke-opacity=".67"/>
+  <g transform="translate(4.2 5.6) scale(.67)">
+    <g fill="none" stroke="#c3b4fa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 23H8V9h18v8M12 13h10m-10 4h5"/><circle cx="23" cy="20" r="3.5" stroke="#ffe0be"/><path d="m20.7 22.6-.6 5 2.9-1.8 2.9 1.8-.6-5" stroke="#ffe0be"/></g>
+  </g>
+  <text x="29" y="21.9" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#f5f2ff">Certificates</text>
+</svg>
