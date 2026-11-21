@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="87" height="34" viewBox="0 0 87 34" role="img" aria-labelledby="label">
+  <title id="label">Contact</title>
+  <defs><linearGradient id="enamel" x2=".95" y2=".8"><stop stop-color="#3d2f4b"/><stop offset="1" stop-color="#15182c"/></linearGradient></defs>
+  <rect x=".8" y="1.8" width="85.4" height="30.4" rx="15.2" fill="url(#enamel)" stroke="#edbed7" stroke-opacity=".67"/>
+  <g transform="translate(4.2 5.6) scale(.67)">
+    <g fill="none" stroke="#edbed7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="10" width="20" height="14" rx="2"/><path d="M8.4 11.6l8.6 6.2 8.6-6.2"/></g>
+    <g fill="none" stroke="#ffe0be" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 21.4l3.7-3m11.1 3l-3.7-3"/></g>
+  </g>
+  <text x="29" y="21.9" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#f5f2ff">Contact</text>
+</svg>

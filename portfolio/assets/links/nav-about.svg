@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="34" viewBox="0 0 80 34" role="img" aria-labelledby="label">
+  <title id="label">About</title>
+  <defs><linearGradient id="enamel" x2=".95" y2=".8"><stop stop-color="#243750"/><stop offset="1" stop-color="#15182c"/></linearGradient></defs>
+  <rect x=".8" y="1.8" width="78.4" height="30.4" rx="15.2" fill="url(#enamel)" stroke="#a5d7ff" stroke-opacity=".67"/>
+  <g transform="translate(15.5 17)" fill="none" stroke="#a5d7ff" stroke-linecap="round">
+    <ellipse rx="7" ry="2.9" transform="rotate(-34)" stroke-width=".85"/>
+    <circle r="3.3" fill="#a5d7ff" stroke="none"/>
+  </g>
+  <text x="29" y="21.9" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#f5f2ff">About</text>
+</svg>
