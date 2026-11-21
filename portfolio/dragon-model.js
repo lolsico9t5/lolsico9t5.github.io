@@ -1,12 +1,13 @@
 // Self-hosted sculpt, skeletal flight clips and perspective camera for the space dragon.
 import {
   AnimationMixer, DirectionalLight, GLTFLoader, Group, HemisphereLight,
-  MathUtils, PerspectiveCamera, Scene, Vector3, WebGLRenderer
-} from "./vendor/three-flight.module.js";
+  MathUtils, PerspectiveCamera, PointLight, Scene, Vector3, WebGLRenderer
+} from "./vendor/three-flight.module.js?v=7";
 
 export async function createDragonModel(canvas, url) {
   const renderer = new WebGLRenderer({canvas, alpha:true, antialias:true, powerPreference:"low-power"});
   renderer.setClearColor(0x000000, 0);
+  renderer.shadowMap.enabled = true;
   let asset;
   try {
     asset = await new GLTFLoader().loadAsync(url);
@@ -15,17 +16,24 @@ export async function createDragonModel(canvas, url) {
     throw error;
   }
   const scene = new Scene();
-  const camera = new PerspectiveCamera(24, 1, .1, 60);
+  const camera = new PerspectiveCamera(29, 1, .1, 60);
   camera.position.set(0, 4.0, 13.2);
   camera.lookAt(0, 0, 0);
   camera.updateMatrixWorld();
-  scene.add(new HemisphereLight(0xf2e9ff, 0x777393, 1.65));
+  scene.add(new HemisphereLight(0xf2e9ff, 0x625875, 1.36));
   function light(color, intensity, x, y, z) {
     const lamp = new DirectionalLight(color, intensity);
     lamp.position.set(x,y,z);
     scene.add(lamp);
+    return lamp;
   }
-  light(0xffe6e0, 2.0, -4, 7, 6);
+  const key = light(0xffe6e0, 2.22, -4, 7, 6);
+  key.castShadow = true;
+  Object.assign(key.shadow.camera,{left:-5,right:5,top:5,bottom:-5,near:.5,far:23});
+  key.shadow.camera.updateProjectionMatrix();
+  key.shadow.mapSize.set(512,512);
+  key.shadow.normalBias=.023;
+  key.shadow.bias=-.00045;
   light(0xc4a3ff, 2.4, 3, 4, -5);
   light(0x8ba8ff, .65, 2, -1, 3);
 
@@ -36,7 +44,10 @@ export async function createDragonModel(canvas, url) {
   model.position.set(.65,-.20,0);
   airframe.add(model);
   model.traverse(node => {
-    if (node.isSkinnedMesh) node.frustumCulled = false;
+    if (!node.isSkinnedMesh) return;
+    node.frustumCulled = false;
+    node.castShadow = !node.material.transparent;
+    node.receiveShadow = true;
   });
   const mixer = new AnimationMixer(model);
   const clip = name => mixer.clipAction(asset.animations.find(a=>a.name===name)).play();
@@ -45,13 +56,18 @@ export async function createDragonModel(canvas, url) {
   const tail = Array.from({length:6}, (_,i)=>bones("Tail"+(i+1)));
   const head = bones("Head"), jaw = bones("Jaw");
   const lips = bones("Muzzle"), throat = bones("Throat");
+  const firelight = new PointLight(0xffa25e,0,1.75);
+  firelight.position.set(.18,.02,.05);
+  lips.add(firelight);
+  const neck = bones("Neck2");
   const wrists = [bones("WingWristL"),bones("WingWristR")];
-  const secondary = [...tail, ...wrists, head, jaw].map(node => ({node, base:node.quaternion.clone()}));
+  const secondary = [...tail, ...wrists, neck, head, jaw].map(node => ({node, base:node.quaternion.clone()}));
   const tailBank = new Float32Array(tail.length);
   const snout = new Vector3(), rear = new Vector3();
   let lastWidth=0, lastHeight=0;
 
-  function render({dt, heading, pitch, roll, pace, wingLoad, heat, tailLean, size}) {
+  let depth=0;
+  function render({dt, heading, pitch, roll, pace, wingLoad, heat, tailLean, size, steerLead=0, wingCycle}) {
     if (lastWidth!==canvas.width || lastHeight!==canvas.height) {
       lastWidth=canvas.width; lastHeight=canvas.height;
       renderer.setSize(lastWidth,lastHeight,false);
@@ -65,6 +81,10 @@ export async function createDragonModel(canvas, url) {
     // Restore the previous animated pose before mixing, so offsets never accumulate.
     for (const joint of secondary) joint.node.quaternion.copy(joint.base);
     mixer.update(dt);
+    if(wingCycle!==undefined) {
+      flap.time=wingCycle*flap.getClip().duration;
+      mixer.update(0);
+    }
     for (const joint of secondary) joint.base.copy(joint.node.quaternion);
     for (let i=0;i<tail.length;i++) {
       const bend=(i+1)/tail.length;
@@ -76,9 +96,14 @@ export async function createDragonModel(canvas, url) {
     // Tuck the inside wing slightly. Let the extended outside wing carry the bank.
     wrists[0].rotateY(Math.max(0,roll)*.21);
     wrists[1].rotateY(Math.min(0,roll)*.21);
-    head.rotateY(-roll*.18);
+    neck.rotateY(-steerLead*.14);
+    head.rotateY(-steerLead*.13-roll*.10);
+    head.rotateZ(pitch*.13);
     jaw.rotateZ(-heat*.25);
     airframe.rotation.set(roll,-heading,-pitch,"YZX");
+    depth+=(Math.sin(heading)*Math.min(1,pace*2.6)*.72-depth)*(1-Math.exp(-3*dt));
+    airframe.position.z=depth;
+    firelight.intensity=heat*1.6;
     renderer.render(scene,camera);
     // Project the animated mouth and its direction through the same camera as the mesh.
     lips.getWorldPosition(snout).project(camera);

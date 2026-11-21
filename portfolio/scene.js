@@ -1,3 +1,4 @@
+import { mouthFrames } from "./flight-mouth.js";
 import { planEdgeTurn, advanceEdgeTurn } from "./flight-turn.js";
 import { createBreath } from "./fire.js";
 
@@ -8,18 +9,9 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   const dragon = root.querySelector("#creature");
   const rigCanvas = root.querySelector("#rig");
   const body = dragon.querySelector(".dragon-body");
-  const sidePose = dragon.querySelector(".side-pose");
-  function loadPose(filename) {
-    const image=new Image();
-    const layer=document.createElement("span");
-    layer.className="turn-pose";
-    image.alt=""; image.draggable=false;
-    image.src=assetURL(filename);
-    layer.append(image);body.append(layer);
-    return layer;
-  }
-  const quarterPose=loadPose("bank-quarter.webp"), frontPose=loadPose("bank-front.webp");
-  const turnTextures=[quarterPose.firstElementChild,frontPose.firstElementChild];
+  const preview=dragon.querySelector(".flight-preview");
+  let atlasImage=null, atlasReady=false, atlasTile=-1;
+  let wingCycle=0, steerLead=0, lastCourse=Math.PI;
   const fire = root.querySelector("#fire");
   const land = root.querySelector("#land");
   const help = root.querySelector("#help");
@@ -166,20 +158,24 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     }
     const speed=Math.hypot(vx,vy);
     if(Math.abs(vx)>18) face=Math.sign(vx);
-    let desiredHeading=face>0 ? 0 : Math.PI;
+    let desiredHeading=lastCourse;
     if(speed>24 || (banking && speed>9)) {
       // Down-screen travel brings the chest towards the viewer. Up-screen shows the back.
-      desiredHeading=Math.atan2(vy*(banking?.92:.62),vx);
+      lastCourse=desiredHeading=Math.atan2(vy*(banking ? .92 : .62),vx);
     } else if(drag && speed<36) {
       if(x-box.left<7 && face<0) desiredHeading=Math.PI*.67;
       if(box.right-x<7 && face>0) desiredHeading=Math.PI*.33;
     }
     let arc=Math.atan2(Math.sin(desiredHeading-heading),Math.cos(desiredHeading-heading));
     if(Math.abs(arc)>Math.PI-.035 && Math.abs(headingRate)>.22) arc=Math.sign(headingRate)*Math.abs(arc);
-    [heading,headingRate]=follow(heading,headingRate,heading+arc,dt,5.9);
+    steerLead+=(clamp(arc,-1,1)-steerLead)*blend(9,dt);
+    const turnResponse=drag ? 7.2 : 5.9;
+    [heading,headingRate]=follow(heading,headingRate,heading+arc,dt,turnResponse);
     const targetPitch=clamp(Math.atan2(vy,Math.max(95,Math.abs(vx)))*.64,-.54,.51);
     [pitch,pitchRate]=follow(pitch,pitchRate,targetPitch,dt,7.4);
-    roll+=(-clamp(headingRate*.19,-.76,.76)-roll)*blend(5.9,dt);
+    // Begin the bank as the gaze turns. Level out progressively as the turn finishes.
+    const bankGoal=-clamp(headingRate*.14+steerLead*.24,-.76,.76);
+    roll+=(bankGoal-roll)*blend(5.9,dt);
     tailLean+=(clamp(pitchRate*.18+roll*.54,-.7,.7)-tailLean)*blend(3.8,dt);
     if(!drag && !placed) constrain(box);
   }
@@ -190,43 +186,35 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   function paint(dt) {
     if(!Number.isFinite(x)) return;
     const pace=Math.min(1,Math.hypot(vx,vy)/520);
-    const yaw=Math.cos(heading), extent=Math.abs(yaw), sign=yaw<0?-1:1;
+    const yaw=Math.cos(heading);
     const bank=clamp(Math.sin(pitch)*yaw+roll,-1,1);
     const climb=clamp(-vy/370,0,1);
     const glide=!drag && !placed && !keys.size
       ? smooth(.055,.32,pace)*(1-smooth(.06,.52,climb))*(1-smooth(.15,.6,Math.abs(roll))) : 0;
     const targetLoad=.85+.22*climb+.12*Math.abs(bank)-.73*glide;
     wingLoad+=(targetLoad-wingLoad)*blend(2.8,dt);
-    phase+=dt*(1.30+wingLoad*1.71+climb*.82+heat*.22);
+    if(rig || atlasReady) wingCycle=(wingCycle+dt*(.88+.34*wingLoad)/1.39)%1;
+    phase=wingCycle*Math.PI;
     const lift=active && !drag && !reduced.matches ? Math.cos(2*phase-.72)*size*.010*wingLoad : 0;
     const bodyY=y+lift, angle=pitch*yaw+roll*Math.sin(heading);
     moveBody();
     if(rig && !contextLost) {
       body.style.transform='translateY('+lift+'px)';
-      const nozzle=rig.render({dt,heading,pitch,roll,pace,heat,wingLoad,tailLean,size});
+      const nozzle=rig.render({dt,heading,pitch,roll,pace,heat,wingLoad,tailLean,size,steerLead,wingCycle});
       effects.draw(dt,{x:x+nozzle.x,y:bodyY+nozzle.y,dx:nozzle.dx,dy:nozzle.dy},size,active?heat:0);
       return;
     }
     body.style.transform='translateY('+lift+'px) rotate('+angle+'rad)';
-    const havePoses=turnTextures.every(image=>image.complete && image.naturalWidth);
-    const side=havePoses ? smooth(.66,.91,extent) : 1;
-    const front=havePoses ? 1-smooth(.15,.45,extent) : 0;
-    const quarter=1-side-front;
-    const noseX=.434*yaw*size;
-    // Register all three snouts on the same moving point during the change of view.
-    const sideWidth=(.77+.23*extent)*sign, quarterWidth=(.75+.23*extent)*sign;
-    sidePose.style.opacity=side;
-    sidePose.style.transform='translateX('+(noseX-.434*size*sideWidth)+'px) scaleX('+sideWidth+')';
-    quarterPose.style.opacity=quarter;
-    quarterPose.style.transform='translateX('+(noseX-.341*size*quarterWidth)+'px) scaleX('+quarterWidth+')';
-    frontPose.style.opacity=front;
-    frontPose.style.transform='translateX('+noseX+'px) scaleX('+(1-.15*extent)+')';
-    const beat=Math.sin(phase*2+.5)*.010-bank*.008;
-    const mx=noseX-side*.011*heat*size*sign;
-    const my=(.051+side*.86*(beat-.010*heat))*size*.5;
+    const row=atlasReady ? (Math.round(heading*8/Math.PI)%16+16)%16 : 8;
+    const col=atlasReady ? Math.floor(wingCycle*16)%16 : 0;
+    const tile=row*16+col;
+    if(atlasReady && tile!==atlasTile) {
+      preview.style.backgroundPosition=(col*100/15)+"% "+(row*100/15)+"%";
+      atlasTile=tile;
+    }
+    const [mx,my,dx,dy]=mouthFrames[row][col];
     const c=Math.cos(angle),s=Math.sin(angle);
-    const dirX=yaw,dirY=.09+.51*Math.sin(heading), norm=Math.hypot(dirX,dirY);
-    const mouth={x:x+mx*c-my*s,y:bodyY+mx*s+my*c,dx:(dirX*c-dirY*s)/norm,dy:(dirX*s+dirY*c)/norm};
+    const mouth={x:x+size*(mx*c-my*s),y:bodyY+size*(mx*s+my*c),dx:dx*c-dy*s,dy:dx*s+dy*c};
     effects.draw(dt,mouth,size,active ? heat : 0);
   }
   function tick(now) {
@@ -364,22 +352,27 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   },events);
   function showFallback() {
     dragon.classList.remove("rigged");
-    // The same skinned poses are available as compact loops on software-only devices.
-    const files=["gliding.webp","glide-quarter.webp","glide-front.webp"];
-    [sidePose,quarterPose,frontPose].forEach((layer,i)=>{
-      if(layer.querySelector(".sprite")) return;
-      const image=new Image();
-      image.className="sprite"; image.alt=""; image.draggable=false;
-      image.src=assetURL(files[i]); layer.append(image);
-      image.decode().then(()=>layer.classList.add("has-sprite")).catch(()=>{});
-    });
+    loadAtlas();
+  }
+  function loadAtlas() {
+    if(atlasImage || lifecycle.signal.aborted) return;
+    atlasImage=new Image();
+    atlasImage.src=assetURL("dragon-flight-atlas.webp");
+    atlasImage.decode().then(()=>{
+      if(lifecycle.signal.aborted) return;
+      preview.style.backgroundImage='url("'+atlasImage.src+'")';
+      atlasReady=true;
+      dragon.classList.add("atlas-ready");
+      paint(0);
+    }).catch(()=>{atlasImage=null;});
   }
   async function mountRig() {
     if(loading || lifecycle.signal.aborted || !active) return;
     loading=true;
+    const previewTimer=setTimeout(()=>{if(!rig && active) loadAtlas();},350);
     try {
       if(!rig) {
-        const {createDragonModel}=await import("./dragon-model.js");
+        const {createDragonModel}=await import("./dragon-model.js?v=7");
         if(lifecycle.signal.aborted) return;
         const model=await createDragonModel(rigCanvas,assetURL("flight-dragon.glb"));
         if(lifecycle.signal.aborted) {model.dispose();return;}
@@ -388,7 +381,7 @@ export function startFlight(root, heroElement, assetURL = name => name) {
       if(!contextLost) dragon.classList.add("rigged");
     } catch {
       if(!lifecycle.signal.aborted) showFallback();
-    } finally { loading=false; }
+    } finally { clearTimeout(previewTimer);loading=false; }
     if(!lifecycle.signal.aborted) {paint(0);request();}
   }
   rigCanvas.addEventListener("webglcontextrestored",()=>{

@@ -13,9 +13,12 @@ if (card) {
     try {
       await image.decode();
       if (last === period) card.src = image.src;
-    } catch { /* Continue showing the last loaded card if the network is offline. */ }
+    } catch {
+      if (last === period) last = -1;
+    }
   }
   refresh();
   document.addEventListener("visibilitychange", refresh);
+  window.addEventListener("online", refresh);
   window.setInterval(refresh, interval);
 }

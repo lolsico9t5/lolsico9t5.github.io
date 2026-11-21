@@ -69,22 +69,17 @@ body { padding-bottom: 110px; }
 #creature .dragon-body { position:absolute; inset:0; pointer-events:auto; touch-action:none; }
 @media (pointer:coarse) { #creature::before { inset:-9px; } }
 #creature:active { cursor: grabbing; }
-#creature .side-pose, #creature .turn-pose, #creature img, #creature canvas { width: 100%; height: 100%; position: absolute; inset: 0; pointer-events: none; }
-#creature img { object-fit: contain; padding: 3.5% 5.5%; }
-#creature canvas { display: none; }
-#creature.rigged canvas { display: block; }
-#creature.rigged .side-pose, #creature.rigged .turn-pose { visibility: hidden; }
-/* The mesh extends beyond its resting silhouette at the top of an upstroke. */
-#creature #rig, #creature .sprite { left:-11%; top:-32%; width:122%; height:164%; padding:0; }
-#creature #rig { z-index:1; }
+#creature #texture, #creature .flight-preview, #creature #rig {
+  position:absolute; left:-11%; top:-32%; width:122%; height:164%; pointer-events:none;
+}
+#creature .flight-preview, #creature #rig { display:none; }
+#creature .flight-preview { background-size:1600% 1600%; background-repeat:no-repeat; }
+#creature.atlas-ready .flight-preview, #creature.rigged #rig { display:block; }
+#creature.atlas-ready #texture, #creature.rigged #texture, #creature.rigged .flight-preview { display:none; }
 #creature .dragon-body::before {
   content:""; position:absolute; inset:-25% -8% -14%; pointer-events:auto;
   clip-path: polygon(0 18%,18% 0,82% 0,100% 18%,100% 84%,55% 100%,0 84%);
 }
-#creature .turn-pose { opacity: 0; }
-#creature .turn-pose img { padding: 0; }
-#creature .sprite { padding: 0; }
-#creature .has-sprite > img:first-child { visibility: hidden; }
 .controls { position: fixed; z-index: 12; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); display: grid; gap: 7px; justify-items: end; }
 .buttons, #guide { border: 1px solid #857c9b80; background: #15182af2; box-shadow: 0 5px 24px #0007; }
 .buttons { pointer-events: auto; display: flex; align-items: center; gap: 4px; border-radius: 24px; padding: 4px; }
