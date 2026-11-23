@@ -54,11 +54,15 @@
   background-repeat: no-repeat;
 }
 .portrait {width: 100%; height: auto; display: block; border-radius: 3px}
-.identity h1 span {display: block}
+.identity h1 > span {display: block}
+.identity .name-ink {
+  display: inline-block; vertical-align: top; white-space: nowrap;
+  padding: .28em .15em; margin: -.28em -.15em;
+}
 @media (prefers-reduced-motion: no-preference) {
   .awaiting-portrait .portrait, .awaiting-portrait .identity h1 > * {opacity: 0}
-  .identity p {animation: arrive-name 1.6s ease-out 2.7s both}
-  .portrait-frame::before, .portrait-frame::after {animation: trace-frame 2s ease-out 2.7s both}
+  .identity p {animation: arrive-name 1s ease-out 1.25s both}
+  .portrait-frame::before, .portrait-frame::after {animation: trace-frame 1.2s ease-out 1.5s both}
 }
 @keyframes arrive-name {
   from {opacity: 0; transform: translate(-.2em,.22em); filter: blur(8px)}

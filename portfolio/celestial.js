@@ -1,5 +1,3 @@
-import { loadSurfaces } from "./planet-surfaces.js?v=4";
-
 const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
 const limit = value => Math.max(0, Math.min(1, value));
 const ease = value => value*value*(3-2*value);
@@ -7,29 +5,44 @@ const ease = value => value*value*(3-2*value);
 // Sample the real glyphs at their final layout positions so the dust settles
 // into the same lettering that remains selectable after the reveal.
 function sampleLetters(line, bounds, lineIndex, addStar) {
-  const rect = line.getBoundingClientRect();
+  const text = line.firstChild;
   const style = getComputedStyle(line);
+  const marker = document.createElement("i");
+  marker.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+  line.append(marker);
+  const baseline = marker.getBoundingClientRect().top;
+  marker.remove();
+  const rect = line.getBoundingClientRect();
   const tile = document.createElement("canvas");
   tile.width = Math.ceil(rect.width);
-  tile.height = Math.ceil(rect.height + 12);
+  tile.height = Math.ceil(rect.height);
   const pen = tile.getContext("2d");
   pen.font = [style.fontStyle, style.fontWeight, style.fontSize, style.fontFamily].join(" ");
-  pen.letterSpacing = style.letterSpacing;
-  const metrics = pen.measureText(line.textContent);
-  const baseline = (rect.height - metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent)/2 + metrics.fontBoundingBoxAscent;
-  const inset = style.textAlign === "center" ? (rect.width-metrics.width)/2 : 0;
-  pen.fillText(line.textContent,inset,baseline+6);
-  const ink=pen.getImageData(0,0,tile.width,tile.height).data;
-  for(let y=1;y<tile.height;y+=3) for(let x=1;x<tile.width;x+=3) {
-    if(ink[(y*tile.width+x)*4+3]<100) continue;
-    addStar(rect.left-bounds.left+x,rect.top-bounds.top+y-6,
-      lineIndex ? [212,203,252] : [255,244,227], .18+lineIndex*.16+.36*x/tile.width, lineIndex+1);
+  // Use each rendered character's actual position, including the browser's
+  // kerning and tracking. Both the sampling tile and the mask include the ink
+  // below the baseline and the overhang at the ends of the line.
+  const range = document.createRange();
+  let offset = 0;
+  for (const glyph of text.data) {
+    range.setStart(text,offset);
+    offset += glyph.length;
+    range.setEnd(text,offset);
+    const left = range.getBoundingClientRect().left - rect.left;
+    pen.fillText(glyph,left,baseline-rect.top);
+  }
+  const ink = pen.getImageData(0,0,tile.width,tile.height).data;
+  const step = parseFloat(style.fontSize) < 70 ? 2 : 3;
+  const color = lineIndex ? [212,203,252] : [255,244,227];
+  for(let y=1;y<tile.height;y+=step) for(let x=1;x<tile.width;x+=step) {
+    if(ink[(y*tile.width+x)*4+3]<80) continue;
+    addStar(rect.left-bounds.left+x,rect.top-bounds.top+y,
+      color,.18+lineIndex*.16+.36*x/tile.width,lineIndex+1);
   }
 }
 
-async function gatherPortrait() {
+function gatherPortrait() {
   const image = document.querySelector(".portrait");
-  const lines = Array.from(document.querySelectorAll(".identity h1 > *"));
+  const lines = Array.from(document.querySelectorAll(".identity .name-ink"));
   const canvas = document.querySelector(".gathering");
   const ctx = canvas.getContext("2d");
   const root = document.documentElement;
@@ -47,45 +60,56 @@ async function gatherPortrait() {
   }
   layers.forEach(el=>el.style.opacity="0");
   root.classList.remove("awaiting-portrait");
-  const loadTimeout = setTimeout(finish, 3500);
   try {
-    await image.decode();
-    clearTimeout(loadTimeout);
-    if (canvas.hidden) return;
-    const cols=65, rows=Math.round(cols*image.naturalHeight/image.naturalWidth);
-    const sample=document.createElement("canvas");
-    sample.width=cols; sample.height=rows;
-    const pen=sample.getContext("2d");
-    pen.drawImage(image,0,0,cols,rows);
-    const pixels=pen.getImageData(0,0,cols,rows).data;
     const stars=[];
-    let width,height;
+    let width,height,cols,rows,pixels;
+    const palettes=new Map();
     function addStar(x,y,rgb,order,group) {
       const seed=Math.random(), fromLeft=Math.random()<.5;
       const pathAngle=(fromLeft ? Math.PI : 0) + (seed-.5)*2.1;
       const length=width*(.16+Math.random()*.69);
       const light=group ? [252,229,190] : seed>.72 ? [243,220,174] : [190,204,250];
-      const palette=Array.from({length:9},(_,k)=>
-        "rgb("+rgb.map((v,c)=>Math.round(light[c]+(v-light[c])*k/8)).join(",")+")");
+      const key=(light[0]<<16)|((rgb[0]>>4)<<8)|((rgb[1]>>4)<<4)|(rgb[2]>>4);
+      let palette=palettes.get(key);
+      if(!palette) {
+        palette=Array.from({length:5},(_,k)=>
+          "rgb("+rgb.map((v,c)=>Math.round(light[c]+(v-light[c])*k/4)).join(",")+")");
+        palettes.set(key,palette);
+      }
       stars.push({x,y,order,group,palette,angle:pathAngle,length,seed,
         delay:order*1100+Math.random()*680, duration:1500+seed*800, glint:seed>.964});
     }
-    function measure() {
+    function addPortraitStars() {
       const area=canvas.getBoundingClientRect(), photo=image.getBoundingClientRect();
-      width=area.width; height=area.height;
-      const dpr=Math.min(1.6,devicePixelRatio);
-      canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr);
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-      stars.length=0;
       for(let row=0;row<rows;row++) for(let col=0;col<cols;col++) {
         const u=(col+.5)/cols,v=(row+.5)/rows,i=4*(row*cols+col);
         const distance=Math.hypot((u-.52)*.88,v-.29);
         addStar(photo.left-area.left+u*photo.width,photo.top-area.top+v*photo.height,
           [pixels[i],pixels[i+1],pixels[i+2]],distance,0);
       }
+    }
+    function measure() {
+      const area=canvas.getBoundingClientRect();
+      width=area.width; height=area.height;
+      const dpr=Math.min(1.5,devicePixelRatio);
+      canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      stars.length=0;
+      if(pixels) addPortraitStars();
       lines.forEach((line,i)=>sampleLetters(line,area,i,addStar));
     }
     measure();
+    image.decode().then(()=>{
+      if(canvas.hidden) return;
+      cols=Math.max(30,Math.min(54,Math.round(image.clientWidth/7)));
+      rows=Math.round(cols*image.naturalHeight/image.naturalWidth);
+      const sample=document.createElement("canvas");
+      sample.width=cols; sample.height=rows;
+      const pen=sample.getContext("2d");
+      pen.drawImage(image,0,0,cols,rows);
+      pixels=pen.getImageData(0,0,cols,rows).data;
+      addPortraitStars();
+    }).catch(()=>{});
     observer=new ResizeObserver(([entry])=>{
       const box=entry.contentRect;
       if(Math.abs(box.width-width)>.5 || Math.abs(box.height-height)>.5) measure();
@@ -93,9 +117,9 @@ async function gatherPortrait() {
     observer.observe(canvas);
     const start=performance.now();
     function draw(now) {
-      const t=now-start;
+      const t=(now-start)*1.68;
       if(t>=4900 || motionPreference.matches) {finish();return;}
-      const focus=ease(limit((t-1900)/2940));
+      const focus=ease(limit((t-1250)/3050));
       image.style.opacity=focus>0?"1":"0";
       const edge=focus*150-20;
       image.style.maskImage="radial-gradient(ellipse farthest-corner at 52% 29%, black "+(edge-12)+"%, transparent "+(edge+15)+"%)";
@@ -114,10 +138,10 @@ async function gatherPortrait() {
         const fade=s.group ? ease(limit((4390-t)/1050)) : ease(limit((s.order-focus*1.3+.32)/.35));
         ctx.globalAlpha=fade*ease(Math.min(1,u*5))*(.38+.62*u);
         if(ctx.globalAlpha<=.01) continue;
-        const color=s.palette[Math.round(8*u*u)];
+        const color=s.palette[Math.round(4*u*u)];
         ctx.fillStyle=color;
         const r=(s.glint ? 1.85 : .65+s.seed*.65)*(1-.16*u);
-        ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+        ctx.fillRect(x-r,y-r,2*r,2*r);
         if(s.glint) {
           // Trace back along the same curved flight path. The streak shortens
           // naturally as a star settles into a letter or into the portrait.
@@ -135,7 +159,7 @@ async function gatherPortrait() {
       requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
-  } catch {clearTimeout(loadTimeout); finish();}
+  } catch {finish();}
 }
 
 function orbitNavigation() {
@@ -250,7 +274,8 @@ function orbitNavigation() {
     if (loadingSurfaces) return;
     loadingSurfaces = true;
     const hosts = worlds.map(world=>world.querySelector(".globe"));
-    loadSurfaces([...hosts,map.querySelector(".sun")]).then(draw => {
+    import("./planet-surfaces.js?v=4").then(({loadSurfaces})=>
+      loadSurfaces([...hosts,map.querySelector(".sun")])).then(draw => {
       surfaces = draw;
       place(true);
     }).catch(() => { loadingSurfaces = false; });

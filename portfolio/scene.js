@@ -377,9 +377,16 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   async function mountRig() {
     if(loading || lifecycle.signal.aborted || !active) return;
     loading=true;
-    const previewTimer=setTimeout(()=>{if(!rig && active) loadAtlas();},350);
     try {
       if(!rig) {
+        // The lightweight dragon already supports flight and fire while the
+        // first view paints. Give the portrait first use of the connection.
+        const portrait=heroElement?.querySelector(".portrait");
+        if(portrait && !portrait.complete) {
+          await Promise.race([portrait.decode().catch(()=>{}),new Promise(resolve=>setTimeout(resolve,1400))]);
+        }
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+        if(lifecycle.signal.aborted || !active) return;
         const {createDragonModel}=await import("./dragon-model.js?v=8");
         if(lifecycle.signal.aborted) return;
         const model=await createDragonModel(rigCanvas,assetURL("flight-dragon.glb"));
@@ -389,7 +396,7 @@ export function startFlight(root, heroElement, assetURL = name => name) {
       if(!contextLost) dragon.classList.add("rigged");
     } catch {
       if(!lifecycle.signal.aborted) showFallback();
-    } finally { clearTimeout(previewTimer);loading=false; }
+    } finally { loading=false; }
     if(!lifecycle.signal.aborted) {paint(0);request();}
   }
   rigCanvas.addEventListener("webglcontextrestored",()=>{

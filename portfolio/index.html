@@ -7,16 +7,15 @@
   <title>Benjamin Franklin A | Portfolio</title>
   <meta name="description" content="Second-year Computer Science and Engineering Student at SKCET">
   <link rel="canonical" href="https://lolsico9t5.github.io/portfolio/">
-  <link rel="preload" as="fetch" href="flight-dragon.glb" crossorigin="anonymous" media="(prefers-reduced-motion: no-preference)">
-  <link rel="modulepreload" href="./dragon-model.js?v=8" media="(prefers-reduced-motion: no-preference)">
+  <link rel="preload" as="image" href="portrait-full.webp" imagesrcset="portrait-512.webp 512w, portrait-768.webp 768w, portrait-full.webp 958w" imagesizes="(max-width: 650px) clamp(166px,min(61vw,32svh),275px), min(35vw,49svh,416px)" fetchpriority="high">
   <link rel="icon" href="dragon-start.webp" type="image/webp">
   <link rel="stylesheet" href="scene.css?v=7">
   <link rel="stylesheet" href="certificates.css">
-  <link rel="stylesheet" href="celestial.css?v=5">
+  <link rel="stylesheet" href="celestial.css?v=6">
   <script>
     if (location.hash.length < 2 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.add("awaiting-portrait");
-      setTimeout(() => document.documentElement.classList.remove("awaiting-portrait"), 4500);
+      setTimeout(() => document.documentElement.classList.remove("awaiting-portrait"), 2200);
     }
   </script>
   <link rel="license" type="text/plain" href="texture-license.txt" title="Planet texture attribution">
@@ -26,11 +25,11 @@
   <header class="arrival" id="arrival">
     <div class="arrival-layout">
       <div class="identity">
-        <h1><span>Benjamin</span> <em>Franklin A</em></h1>
+        <h1><span><span class="name-ink">Benjamin</span></span> <em><span class="name-ink">Franklin A</span></em></h1>
         <p>Second-year Computer Science and Engineering Student at SKCET</p>
       </div>
       <div class="portrait-frame">
-        <img class="portrait" src="portrait-full.webp" width="958" height="1112" fetchpriority="high" alt="Portrait of Benjamin Franklin A">
+        <img class="portrait" src="portrait-full.webp" srcset="portrait-512.webp 512w, portrait-768.webp 768w, portrait-full.webp 958w" sizes="(max-width: 650px) clamp(166px,min(61vw,32svh),275px), min(35vw,49svh,416px)" width="958" height="1112" fetchpriority="high" alt="Portrait of Benjamin Franklin A">
       </div>
     </div>
     <canvas class="gathering" aria-hidden="true"></canvas>
@@ -64,27 +63,28 @@
 
   <main class="profile" aria-label="Benjamin Franklin A’s portfolio">
     <!-- profile start -->
-<h2 id="about"><picture><img src="assets/icons/about.svg" width="36" height="28" align="texttop" alt=""></picture>About</h2>
+<h2 id="about"><picture><img loading="lazy" decoding="async" src="assets/icons/about.svg" width="36" height="28" align="texttop" alt=""></picture>About</h2>
 <p>Second-year <strong>B.E. Computer Science and Engineering</strong> student with a strong foundation in C++, Java, SQL, web technologies, and cloud computing.<br>
-Completed a C++ programming internship at Thiranex, serves as an <strong>AWS Student Builder Campus Leader</strong> and <strong>GeeksforGeeks Campus Mantri</strong>, and builds AI-assisted applications with Amazon Bedrock, Kiro, and Claude. Won <strong>first place at EUREKA! 2026</strong> (E-Cell, IIT Bombay) and focuses on software development, AI-enabled applications, and practical problem-solving.</p>
-<h2 id="projects"><picture><img src="assets/icons/projects.svg" width="36" height="28" align="texttop" alt=""></picture>Featured projects</h2>
-<h3><a href="https://github.com/lolsico9t5/hmt-restock-radar">HMT Restock Radar<picture><img src="assets/links/open-project.svg" width="27" height="20" alt="" align="absmiddle"></picture></a></h3>
+Completed a C++ programming internship at Thiranex, serves as an <strong>AWS Student Builder Campus Leader</strong> and <strong>GeeksforGeeks Campus Mantri</strong>, and builds AI-assisted applications with Amazon Bedrock, Kiro, and Claude.<br>
+Won <strong>first place at EUREKA! 2026</strong> (E-Cell, IIT Bombay) and focuses on software development, AI-enabled applications, and practical problem-solving.</p>
+<h2 id="projects"><picture><img loading="lazy" decoding="async" src="assets/icons/projects.svg" width="36" height="28" align="texttop" alt=""></picture>Featured projects</h2>
+<h3><a href="https://github.com/lolsico9t5/hmt-restock-radar">HMT Restock Radar<picture><img loading="lazy" decoding="async" src="assets/links/open-project.svg" width="27" height="20" alt="" align="absmiddle"></picture></a></h3>
 <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="assets/still/restock-radar.webp">
-    <img src="assets/restock-radar.svg" width="100%" alt="A watch ticks as the availability trace rises and the restock bell rings.">
+    <img loading="lazy" decoding="async" src="assets/restock-radar.svg" width="100%" alt="A watch ticks as the availability trace rises and the restock bell rings.">
   </picture>
 <p><code class="notranslate">Python</code>, <code class="notranslate">Requests</code>, <code class="notranslate">HTML</code>, <code class="notranslate">CSS</code>, <code class="notranslate">JavaScript</code></p>
 <p>Radar checks HMT watch availability and <strong>sounds an alert when a watch comes back in stock</strong>. I designed and tested the alert behavior and guided the implementation with Claude.</p>
-<p><a href="https://github.com/lolsico9t5/hmt-restock-radar"><picture><img src="assets/links/repository.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>View repository</strong></a></p>
-<h3><a href="https://github.com/lolsico9t5/ai-email-intelligence-n8n">AI Email Intelligence System<picture><img src="assets/links/open-project.svg" width="27" height="20" alt="" align="absmiddle"></picture></a></h3>
+<p><a href="https://github.com/lolsico9t5/hmt-restock-radar"><picture><img loading="lazy" decoding="async" src="assets/links/repository.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>View repository</strong></a></p>
+<h3><a href="https://github.com/lolsico9t5/ai-email-intelligence-n8n">AI Email Intelligence System<picture><img loading="lazy" decoding="async" src="assets/links/open-project.svg" width="27" height="20" alt="" align="absmiddle"></picture></a></h3>
 <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="assets/still/email-workflow.webp">
-    <img src="assets/email-workflow.svg" width="100%" alt="A Gmail message passes through Ollama and moves into its priority position in Notion.">
+    <img loading="lazy" decoding="async" src="assets/email-workflow.svg" width="100%" alt="A Gmail message passes through Ollama and moves into its priority position in Notion.">
   </picture>
 <p><code class="notranslate">n8n</code>, <code class="notranslate">Gmail</code>, <code class="notranslate">Ollama</code>, <code class="notranslate">Llama 3</code>, <code class="notranslate">Notion</code></p>
 <p>An n8n workflow that turns Gmail snippets into a <strong>prioritized inbox in Notion</strong>. <strong>Llama 3 runs locally via Ollama</strong> to summarize and categorize each snippet. The workflow checks for a summary, category, and priority and attempts one repair if a parsed response is missing a required field.</p>
-<p><a href="https://github.com/lolsico9t5/ai-email-intelligence-n8n"><picture><img src="assets/links/repository.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>View repository</strong></a> · <a href="https://github.com/lolsico9t5/ai-email-intelligence-n8n#%EF%B8%8F-workflow-overview"><picture><img src="assets/links/workflow.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Workflow canvas</strong></a></p>
-<h2 id="experience"><picture><img src="assets/icons/experience.svg" width="36" height="28" align="texttop" alt=""></picture>Experience and leadership</h2>
+<p><a href="https://github.com/lolsico9t5/ai-email-intelligence-n8n"><picture><img loading="lazy" decoding="async" src="assets/links/repository.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>View repository</strong></a> · <a href="https://github.com/lolsico9t5/ai-email-intelligence-n8n#%EF%B8%8F-workflow-overview"><picture><img loading="lazy" decoding="async" src="assets/links/workflow.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Workflow canvas</strong></a></p>
+<h2 id="experience"><picture><img loading="lazy" decoding="async" src="assets/icons/experience.svg" width="36" height="28" align="texttop" alt=""></picture>Experience and leadership</h2>
 <p>➤<strong>C++ Programming Intern, Thiranex</strong><br><br>
 <em>April to May 2026</em><br><br>
 Built four console applications using <strong>object-oriented C++</strong>, including a library management system and a tic-tac-toe game.</p>
@@ -94,17 +94,17 @@ Led campus cloud engineering initiatives focused on building and <strong>deployi
 <p>➤<strong>Campus Mantri, GeeksforGeeks</strong><br><br>
 <em>June 2026 to present</em><br><br>
 Share technical learning opportunities with fellow students through LinkedIn and <strong>direct campus outreach</strong>.</p>
-<h2 id="certificates"><picture><img src="assets/icons/certificates.svg" width="36" height="28" align="texttop" alt=""></picture>Certificates</h2>
+<h2 id="certificates"><picture><img loading="lazy" decoding="async" src="assets/icons/certificates.svg" width="36" height="28" align="texttop" alt=""></picture>Certificates</h2>
 <table class="cert-grid">
 <tr>
 <td valign="top">
-<a href="certificates/oracle-sql-databases.pdf"><img src="certificates/oracle-sql-databases-mini.webp" width="310" alt="Open the full Oracle SQL Databases certificate"></a><br>
+<a href="certificates/oracle-sql-databases.pdf"><img loading="lazy" decoding="async" src="certificates/oracle-sql-databases-mini.webp" width="310" alt="Open the full Oracle SQL Databases certificate"></a><br>
 <strong>Oracle SQL Databases</strong><br>
 <em>LearnQuest · Coursera · Oct 2026</em><br>
 <span><a href="certificates/oracle-sql-databases.pdf">View certificate</a> · <a href="https://coursera.org/verify/specialization/JOAMFPAMRJ9M">Verify</a></span>
 </td>
 <td valign="top">
-<a href="certificates/java-programming-fundamentals.pdf"><img src="certificates/java-programming-fundamentals-mini.webp" width="310" alt="Open the full Java Programming Fundamentals certificate"></a><br>
+<a href="certificates/java-programming-fundamentals.pdf"><img loading="lazy" decoding="async" src="certificates/java-programming-fundamentals-mini.webp" width="310" alt="Open the full Java Programming Fundamentals certificate"></a><br>
 <strong>Java Programming Fundamentals</strong><br>
 <em>IBM &amp; SkillUp · Coursera · May 2026</em><br>
 <span><a href="certificates/java-programming-fundamentals.pdf">View certificate</a> · <a href="https://coursera.org/verify/specialization/S0Q4EZQIEGLV">Verify</a></span>
@@ -112,25 +112,25 @@ Share technical learning opportunities with fellow students through LinkedIn and
 </tr>
 <tr>
 <td valign="top">
-<a href="certificates/generative-ai-learning-path.pdf"><img src="certificates/generative-ai-learning-path-mini.webp" width="310" alt="Open the full Introduction to Generative AI Learning Path certificate"></a><br>
+<a href="certificates/generative-ai-learning-path.pdf"><img loading="lazy" decoding="async" src="certificates/generative-ai-learning-path-mini.webp" width="310" alt="Open the full Introduction to Generative AI Learning Path certificate"></a><br>
 <strong>Introduction to Generative AI Learning Path</strong><br>
 <em>Google Cloud · Coursera · Apr 2026</em><br>
 <span><a href="certificates/generative-ai-learning-path.pdf">View certificate</a> · <a href="https://coursera.org/verify/specialization/CMOPS17TE8YB">Verify</a></span>
 </td>
 <td valign="top">
-<a href="certificates/joy-of-computing-python.pdf"><img src="certificates/joy-of-computing-python-mini.webp" width="310" alt="Open the full The Joy of Computing using Python certificate"></a><br>
+<a href="certificates/joy-of-computing-python.pdf"><img loading="lazy" decoding="async" src="certificates/joy-of-computing-python-mini.webp" width="310" alt="Open the full The Joy of Computing using Python certificate"></a><br>
 <strong>The Joy of Computing using Python</strong><br>
 <em>NPTEL · IIT Madras · Jan–Apr 2026</em><br>
 <span><a href="certificates/joy-of-computing-python.pdf">View certificate</a> · <a href="https://nptel.ac.in/noc/E_Certificate/NPTEL26CS84S105050102804291102">Verify</a></span>
 </td>
 </tr>
 </table>
-<h2 id="recognition"><picture><img src="assets/icons/recognition.svg" width="36" height="28" align="texttop" alt=""></picture>Recognition</h2>
+<h2 id="recognition"><picture><img loading="lazy" decoding="async" src="assets/icons/recognition.svg" width="36" height="28" align="texttop" alt=""></picture>Recognition</h2>
 <p>➤<strong>EUREKA! 2026, Startup Pitching</strong> · <strong>First place</strong><br><br>
 My team, <strong>Zenith Labs</strong>, won the startup pitching competition at EUREKA! 2026, organized by E-Cell, IIT Bombay.</p>
 <p>➤<strong>Google Student Ambassador Program</strong> · <strong>Top Prompt Creator</strong><br><br>
 My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</strong>.</p>
-<h2 id="skills"><picture><img src="assets/icons/skills.svg" width="36" height="28" align="texttop" alt=""></picture>Technical skills</h2>
+<h2 id="skills"><picture><img loading="lazy" decoding="async" src="assets/icons/skills.svg" width="36" height="28" align="texttop" alt=""></picture>Technical skills</h2>
 <markdown-accessiblity-table><table role="table">
   <tbody><tr>
     <th align="left" scope="row">Programming</th>
@@ -149,7 +149,7 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
     <td>n8n, Notion, Git, GitHub, Kiro, Claude</td>
   </tr>
 </tbody></table></markdown-accessiblity-table>
-<h2 id="learning"><picture><img src="assets/icons/learning.svg" width="36" height="28" align="texttop" alt=""></picture>Currently learning</h2>
+<h2 id="learning"><picture><img loading="lazy" decoding="async" src="assets/icons/learning.svg" width="36" height="28" align="texttop" alt=""></picture>Currently learning</h2>
 <ul>
 <li><strong>n8n</strong> - Workflow Automation</li>
 <li><strong>Java</strong> · Object-oriented design</li>
@@ -158,19 +158,19 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
 <li><strong>Python</strong> · Backend development and automation</li>
 <li><strong>AWS</strong> · Cloud architecture</li>
 </ul>
-<h2 id="activity"><picture><img src="assets/icons/activity.svg" width="36" height="28" align="texttop" alt=""></picture>GitHub activity</h2>
+<h2 id="activity"><picture><img loading="lazy" decoding="async" src="assets/icons/activity.svg" width="36" height="28" align="texttop" alt=""></picture>GitHub activity</h2>
 <p align="center">
   <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="assets/still/streak-orbit.webp">
-    <img src="assets/streak-orbit.svg" width="620" align="top" alt="">
-  </picture><br><img id="activity-card" data-streak-fallback="assets/activity-snapshot.svg" src="https://raw.githubusercontent.com/lolsico9t5/lolsico9t5/activity-card/github-streak.svg" data-live-streak="https://raw.githubusercontent.com/lolsico9t5/lolsico9t5/activity-card/github-streak.svg" width="620" align="top" alt="GitHub activity for lolsico9t5: total contributions, current streak, and longest streak">
+    <img loading="lazy" decoding="async" src="assets/streak-orbit.svg" width="620" align="top" alt="">
+  </picture><br><img loading="lazy" decoding="async" id="activity-card" data-streak-fallback="assets/activity-snapshot.svg" src="https://raw.githubusercontent.com/lolsico9t5/lolsico9t5/activity-card/github-streak.svg" data-live-streak="https://raw.githubusercontent.com/lolsico9t5/lolsico9t5/activity-card/github-streak.svg" width="620" align="top" alt="GitHub activity for lolsico9t5: total contributions, current streak, and longest streak">
 </p>
-<h2 id="contact"><picture><img src="assets/icons/contact.svg" width="36" height="28" align="texttop" alt=""></picture>Get in touch</h2>
-<p><a href="https://www.linkedin.com/in/benjamin-franklin-a-4b272b391/" rel="nofollow"><picture><img src="assets/links/linkedin.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>LinkedIn</strong></a> · <a href="mailto:abf2k07@gmail.com"><picture><img src="assets/links/email.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Email</strong></a> · <a href="https://www.instagram.com/lol_sico_9t5/" rel="nofollow"><picture><img src="assets/links/instagram.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Instagram</strong></a> · <a href="https://github.com/lolsico9t5?tab=repositories"><picture><img src="assets/links/github.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>GitHub</strong></a></p>
+<h2 id="contact"><picture><img loading="lazy" decoding="async" src="assets/icons/contact.svg" width="36" height="28" align="texttop" alt=""></picture>Get in touch</h2>
+<p><a href="https://www.linkedin.com/in/benjamin-franklin-a-4b272b391/" rel="nofollow"><picture><img loading="lazy" decoding="async" src="assets/links/linkedin.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>LinkedIn</strong></a> · <a href="mailto:abf2k07@gmail.com"><picture><img loading="lazy" decoding="async" src="assets/links/email.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Email</strong></a> · <a href="https://www.instagram.com/lol_sico_9t5/" rel="nofollow"><picture><img loading="lazy" decoding="async" src="assets/links/instagram.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>Instagram</strong></a> · <a href="https://github.com/lolsico9t5?tab=repositories"><picture><img loading="lazy" decoding="async" src="assets/links/github.svg" width="28" height="23" alt="" align="absmiddle"></picture><strong>GitHub</strong></a></p>
 <p><em>Built in Tamil Nadu, India</em></p>
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="assets/still/colophon.webp">
-  <img src="assets/colophon.svg" width="100%" alt="">
+  <img loading="lazy" decoding="async" src="assets/colophon.svg" width="100%" alt="">
 </picture>
     <!-- profile end -->
   </main>
@@ -196,10 +196,10 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
   <script type="module">
     import "./certificates.js";
     import "./sky.js";
-    import { startFlight } from "./scene.js?v=10";
+    import { startFlight } from "./scene.js?v=11";
     startFlight(document, document.querySelector(".arrival"));
-    import "./activity.js";
+    import "./activity.js?v=2";
   </script>
-  <script type="module" src="celestial.js?v=5"></script>
+  <script type="module" src="celestial.js?v=6"></script>
 </body>
 </html>

@@ -4,9 +4,10 @@ if (card) {
   const url = card.dataset.liveStreak || card.src;
   const interval = 5 * 60 * 1000;
   let last = -1;
+  let nearby = false;
   async function refresh() {
     const period = Math.floor(Date.now()/interval);
-    if (document.hidden || last === period) return;
+    if (!nearby || document.hidden || last === period) return;
     last = period;
     const image = new Image();
     image.src = url + "?period=" + period;
@@ -18,7 +19,10 @@ if (card) {
       if (!card.naturalWidth && card.dataset.streakFallback) card.src = card.dataset.streakFallback;
     }
   }
-  refresh();
+  new IntersectionObserver(([entry])=>{
+    nearby=entry.isIntersecting;
+    if(nearby) refresh();
+  },{rootMargin:"450px"}).observe(card);
   document.addEventListener("visibilitychange", refresh);
   window.addEventListener("online", refresh);
   window.addEventListener("focus", refresh);
