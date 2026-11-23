@@ -1,3 +1,5 @@
+import { loadSurfaces } from "./planet-surfaces.js";
+
 const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
 const limit = value => Math.max(0, Math.min(1, value));
 
@@ -10,35 +12,35 @@ async function gatherPortrait() {
   image.style.opacity = "0";
   try {
     await image.decode();
-    const side = 54;
+    const columns = 55;
+    const rows = Math.round(columns * image.naturalHeight / image.naturalWidth);
     const sample = document.createElement("canvas");
-    sample.width = sample.height = side;
+    sample.width = columns; sample.height = rows;
     const brush = sample.getContext("2d");
-    brush.drawImage(image, 0, 0, side, side);
-    const pixels = brush.getImageData(0, 0, side, side).data;
+    brush.drawImage(image, 0, 0, columns, rows);
+    const pixels = brush.getImageData(0, 0, columns, rows).data;
     const stars = [];
-    for (let row = 0; row < side; row++) {
-      for (let col = 0; col < side; col++) {
-        const u = (col + .5) / side, v = (row + .5) / side;
-        if (Math.hypot(u - .5, v - .5) > .495) continue;
-        const i = (row * side + col) * 4;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < columns; col++) {
+        const u = (col + .5) / columns, v = (row + .5) / rows;
+        const i = (row * columns + col) * 4;
         stars.push({
           u, v, angle: Math.random() * Math.PI * 2,
           radius: .32 + Math.random() * .58,
-          delay: Math.random() * 1450,
-          bend: (Math.random() - .5) * 1.28,
+          delay: (u*.28 + v*.72)*1050 + Math.random()*950,
+          bend: .35 + Math.random()*.8,
           color: 'rgb(' + pixels[i] + ',' + pixels[i+1] + ',' + pixels[i+2] + ')',
           glint: Math.random() > .92
         });
       }
     }
 
-    let width, height, left, top, diameter;
+    let width, height, left, top, photoWidth, photoHeight;
     function measure() {
       const area = canvas.getBoundingClientRect();
       const photo = image.getBoundingClientRect();
       width = area.width; height = area.height;
-      diameter = photo.width;
+      photoWidth = photo.width; photoHeight = photo.height;
       left = photo.left - area.left; top = photo.top - area.top;
       const ratio = Math.min(devicePixelRatio, 1.6);
       canvas.width = Math.round(width * ratio);
@@ -51,27 +53,38 @@ async function gatherPortrait() {
     const start = performance.now();
     function draw(now) {
       const elapsed = now - start;
-      const reveal = limit((elapsed - 3900) / 1250);
+      const reveal = limit((elapsed - 2500) / 2400);
       if (reveal === 1 || motionPreference.matches) {
         sizeObserver.disconnect();
         canvas.hidden = true;
         image.style.opacity = "1";
+        image.style.maskImage = "";
         return;
       }
-      image.style.opacity = String(reveal);
+      image.style.opacity = reveal > 0 ? "1" : "0";
+      const edge = reveal * 150 - 25;
+      image.style.maskImage = 'linear-gradient(152deg, black '+(edge-15)+'%, transparent '+(edge+15)+'%)';
       context.clearRect(0, 0, width, height);
       for (const star of stars) {
         const travel = limit((elapsed - star.delay) / 2500);
         const ease = travel * travel * (3 - 2 * travel);
         const remaining = 1 - ease;
         const direction = star.angle + star.bend * ease;
-        const x = left + star.u * diameter + Math.cos(direction) * width * star.radius * remaining;
-        const y = top + star.v * diameter + Math.sin(direction) * height * star.radius * remaining;
-        const radius = .6 + ease * diameter / side * .35;
-        context.globalAlpha = (1 - reveal) * (.24 + ease * .76) * limit((elapsed + 200 - star.delay) / 500);
+        const x = left + star.u * photoWidth + Math.cos(direction) * width * star.radius * remaining;
+        const y = top + star.v * photoHeight + Math.sin(direction) * height * star.radius * remaining;
+        const radius = .55 + ease * photoWidth / columns * .33;
+        const localFade = limit((star.u*.28 + star.v*.72 - edge/100 + .16) / .28);
+        context.globalAlpha = localFade * (.26 + ease * .74) * limit((elapsed + 200 - star.delay) / 500);
         context.fillStyle = ease > .76 ? star.color : star.glint ? "#ffdca7" : "#d7ddff";
         context.fillRect(x - radius, y - radius, radius * 2, radius * 2);
         if (star.glint && travel > .04 && travel < .91) {
+          const trail = 15 * Math.sin(travel * Math.PI);
+          context.beginPath();
+          context.moveTo(x,y);
+          context.lineTo(x+Math.cos(direction)*trail,y+Math.sin(direction)*trail);
+          context.strokeStyle = "#c7ceff";
+          context.lineWidth = .7;
+          context.stroke();
           context.fillRect(x - 3, y, 6, .7);
           context.fillRect(x, y - 3, .7, 6);
         }
@@ -81,6 +94,7 @@ async function gatherPortrait() {
     requestAnimationFrame(draw);
   } catch {
     image.style.opacity = "1";
+    image.style.maskImage = "";
     canvas.hidden = true;
   }
 }
@@ -88,18 +102,21 @@ async function gatherPortrait() {
 function orbitNavigation() {
   const map = document.querySelector(".orbit-map");
   const worlds = Array.from(map.querySelectorAll(".world"));
-  const toggle = document.querySelector(".orbit-toggle");
-  const tracks = [.64, .82, 1].map(scale => {
+  // Earth, Mars, Jupiter, Saturn, Mercury, Uranus, Venus, Neptune, and Ceres.
+  // Compress orbital distances for legible navigation, keeping their order.
+  const scales = [.55,.64,.78,.85,.34,.92,.45,1,.71];
+  const eccentricities = [.017,.093,.049,.057,.13,.046,.007,.009,.08];
+  const tracks = scales.map(scale => {
     const ring = document.createElement("span");
     ring.className = "track";
     ring.setAttribute("aria-hidden", "true");
     map.prepend(ring);
     return {ring, scale};
   });
-  const diameters = [45, 51, 36, 57, 36, 43, 47, 35, 32];
-  const lanes = [1, 2, 0, 2, 1, 2, 0, 2, 1];
-  let phase = 0, frame = 0, previous = 0, visible = false;
-  let paused = motionPreference.matches, pointing = false;
+  const diameters = [52,43,74,61,31,48,49,48,27];
+  const starts = [-2.55,-1.67,-.94,-.37,.13,.76,1.49,2.07,2.96];
+  let orbitTime = 0, spinTime = 0, frame = 0, previous = 0, visible = false;
+  let surfaces, lastPaint = -1, pointing = false, pressing = false;
   let width, height, radiusX, radiusY, sizes;
   // On a narrow ellipse the top and bottom arcs bunch together. Keep every
   // moving label and its touch target clear of its neighbours.
@@ -128,20 +145,29 @@ function orbitNavigation() {
       if (!crowded) break;
     }
   }
-  function place() {
-    const positions = worlds.map((world, i) => {
-      const lane = tracks[lanes[i]].scale;
-      const angle = -Math.PI * .82 + phase + i * 2 * Math.PI / worlds.length;
-      const x = width / 2 + radiusX * lane * Math.cos(angle);
-      const y = height / 2 + radiusY * lane * Math.sin(angle) + sizes[i].offset;
-      return {x, y};
+  function place(redraw = false) {
+    const bodies = worlds.map((world, i) => {
+      const scale = scales[i], e = eccentricities[i];
+      const mean = starts[i] + orbitTime * .025 / scale**1.5;
+      // Two Newton steps solve Kepler's equation at these eccentricities.
+      let anomaly = mean;
+      for(let step=0;step<2;step++) anomaly-=(anomaly-e*Math.sin(anomaly)-mean)/(1-e*Math.cos(anomaly));
+      const dx = Math.cos(anomaly)-e, dy = Math.sqrt(1-e*e)*Math.sin(anomaly);
+      return {x:width/2+radiusX*scale*dx, y:height/2+radiusY*scale*dy, angle:Math.atan2(dy,dx)};
     });
+    const positions = bodies.map((body,i)=>({x:body.x,y:body.y+sizes[i].offset}));
     separateTargets(positions);
     worlds.forEach((world, i) => {
       const {x, y} = positions[i];
       world.style.setProperty("--x", x.toFixed(2) + "px");
       world.style.setProperty("--y", y.toFixed(2) + "px");
+      world.style.setProperty("--body-x", (bodies[i].x-x).toFixed(2) + "px");
+      world.style.setProperty("--body-y", (bodies[i].y+sizes[i].offset-y).toFixed(2) + "px");
     });
+    if (surfaces && (redraw || spinTime - lastPaint >= 1/18)) {
+      surfaces.forEach((draw,i)=>draw(spinTime,bodies[i]?.angle || 0));
+      lastPaint = spinTime;
+    }
   }
   function measure() {
     width = map.clientWidth; height = map.clientHeight;
@@ -151,42 +177,52 @@ function orbitNavigation() {
     }));
     radiusX = Math.max(1, width / 2 - (width < 440 ? 49 : 65));
     radiusY = Math.max(1, height / 2 - 46);
-    tracks.forEach(({ring, scale}) => {
+    tracks.forEach(({ring, scale},i) => {
+      const e = eccentricities[i];
+      ring.style.left = (width/2-radiusX*scale*e) + "px";
       ring.style.width = 2 * radiusX * scale + "px";
-      ring.style.height = 2 * radiusY * scale + "px";
+      ring.style.height = 2 * radiusY * scale * Math.sqrt(1-e*e) + "px";
     });
-    place();
+    place(true);
   }
   function tick(time) {
-    if (previous) phase += Math.min((time - previous) / 1000, .1) * .044;
+    const delta = previous ? Math.min((time - previous) / 1000, .1) : 0;
     previous = time;
+    spinTime += delta;
+    if (!pointing && !pressing && !map.matches(":focus-within")) orbitTime += delta;
     place();
     frame = requestAnimationFrame(tick);
   }
   function sync() {
     cancelAnimationFrame(frame);
     previous = 0;
-    toggle.textContent = paused ? "Resume orbits" : "Pause orbits";
-    if (visible && !paused && !pointing && !document.hidden && !map.matches(":focus-within")) {
+    if (visible && !motionPreference.matches && !document.hidden) {
       frame = requestAnimationFrame(tick);
     }
   }
   worlds.forEach((world, i) => world.style.setProperty("--diameter", diameters[i] + "px"));
   map.classList.add("ready");
   measure();
-  toggle.hidden = false;
-  toggle.addEventListener("click", () => { paused = !paused; sync(); });
-  map.addEventListener("pointerover", event => { pointing = !!event.target.closest(".world"); sync(); });
-  map.addEventListener("pointerleave", () => { pointing = false; sync(); });
-  map.addEventListener("pointerdown", () => { pointing = true; sync(); });
-  map.addEventListener("focusin", sync);
-  map.addEventListener("focusout", () => queueMicrotask(sync));
-  motionPreference.addEventListener("change", () => { paused = motionPreference.matches; sync(); });
+  let loadingSurfaces = false;
+  function showSurfaces() {
+    if (loadingSurfaces) return;
+    loadingSurfaces = true;
+    const hosts = worlds.map(world=>world.querySelector(".globe"));
+    loadSurfaces([...hosts,map.querySelector(".sun")]).then(draw => {
+      surfaces = draw;
+      place(true);
+    }).catch(() => { loadingSurfaces = false; });
+  }
+  map.addEventListener("pointerover", event => { pointing = event.pointerType !== "touch" && !!event.target.closest(".world"); });
+  map.addEventListener("pointerleave", () => { pointing = false; });
+  map.addEventListener("pointerdown", () => { pressing = true; });
+  for(const type of ["pointerup","pointercancel","blur"]) window.addEventListener(type,()=>{pressing=false;});
+  motionPreference.addEventListener("change", sync);
   document.addEventListener("visibilitychange", sync);
   new ResizeObserver(measure).observe(map);
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
-    if (visible) map.classList.add("charted");
+    if (visible) { map.classList.add("charted"); showSurfaces(); }
     sync();
   }).observe(map);
   sync();

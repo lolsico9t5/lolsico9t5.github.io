@@ -12,18 +12,18 @@
   <link rel="icon" href="dragon-start.webp" type="image/webp">
   <link rel="stylesheet" href="scene.css?v=7">
   <link rel="stylesheet" href="certificates.css">
-  <link rel="stylesheet" href="celestial.css">
+  <link rel="stylesheet" href="celestial.css?v=2">
 </head>
 <body>
   <div id="deep-sky" aria-hidden="true"><canvas id="stars"></canvas></div>
   <header class="arrival" id="arrival">
     <div class="arrival-layout">
       <div class="identity">
-        <h1>Benjamin <em>Franklin A</em></h1>
+        <h1><span>Benjamin</span> <em>Franklin A</em></h1>
         <p>Second-year Computer Science and Engineering Student at SKCET</p>
       </div>
       <div class="portrait-frame">
-        <img class="portrait" src="portrait.webp" width="640" height="640" fetchpriority="high" alt="Portrait of Benjamin Franklin A">
+        <img class="portrait" src="portrait-full.webp" width="958" height="1112" fetchpriority="high" alt="Portrait of Benjamin Franklin A">
       </div>
     </div>
     <canvas class="gathering" aria-hidden="true"></canvas>
@@ -34,7 +34,6 @@
   <nav class="solar-nav" id="solar-system" aria-labelledby="solar-heading">
     <div class="map-heading">
       <h2 id="solar-heading">Explore <em>my orbit</em></h2>
-      <button type="button" class="orbit-toggle" hidden>Pause orbits</button>
     </div>
     <div class="orbit-map">
       <div class="sun" aria-hidden="true"></div>
@@ -48,6 +47,7 @@
       <a class="world" href="#activity" style="--sprite:77.7778%"><span class="globe" aria-hidden="true"></span><span class="world-name">GitHub activity</span></a>
       <a class="world" href="#contact" style="--sprite:88.8889%"><span class="globe" aria-hidden="true"></span><span class="world-name">Contact</span></a>
     </div>
+    <small class="map-credit">Planet textures adapted from <a href="https://www.solarsystemscope.com/textures/">Solar System Scope</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></small>
   </nav>
 
   <main class="profile" aria-label="Benjamin Franklin A’s portfolio">
@@ -184,10 +184,10 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
   <script type="module">
     import "./certificates.js";
     import "./sky.js";
-    import { startFlight } from "./scene.js?v=7";
+    import { startFlight } from "./scene.js?v=8";
     startFlight(document, document.querySelector(".arrival"));
     import "./activity.js";
   </script>
-  <script type="module" src="celestial.js"></script>
+  <script type="module" src="celestial.js?v=2"></script>
 </body>
 </html>

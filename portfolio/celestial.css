@@ -11,12 +11,12 @@
   min-height: 100vh;
   min-height: 100svh;
   overflow: clip;
-  background: linear-gradient(105deg, #080d1cdd, #10142c77 55%, #15142b35);
+  background: radial-gradient(ellipse at 22% 44%, #080d1c8c, transparent 70%);
 }
 .arrival-layout {
   width: min(1140px, 88%);
   margin: auto;
-  padding: 7rem 0;
+  padding: clamp(4.8rem,12svh,7rem) 0;
   display: grid;
   align-items: center;
   grid-template-columns: 1.12fr 1fr;
@@ -36,22 +36,37 @@
 .portrait-frame {
   position: relative;
   justify-self: center;
-  width: clamp(205px, 27vw, 350px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  box-shadow: 0 0 45px #9b95e725, 0 0 100px #8186ff1f;
+  width: min(35vw, 49svh, 416px);
+  aspect-ratio: 958 / 1112;
+  border-radius: 4px;
+  box-shadow: 0 15px 70px #05091470, 0 0 80px #aaa0ff19;
 }
 .portrait-frame::before, .portrait-frame::after {
-  content: ""; position: absolute; pointer-events: none; border-radius: 50%;
+  content: ""; position: absolute; pointer-events: none;
 }
 .portrait-frame::before {
-  inset: -4%; border: 1px solid #c4bee566; outline: 1px dashed #d6c4a73d; outline-offset: 7px;
+  inset: -8px; border: 1px solid #ded3b84f; border-radius: 7px;
 }
 .portrait-frame::after {
-  inset: 22% -20%; transform: rotate(-25deg);
-  border: 1px solid #d9c8ed66; border-top-color: transparent; border-left-color: transparent;
+  inset: -11px; background:
+    linear-gradient(90deg,#e3c997,transparent) top left / 38px 1px,
+    linear-gradient(270deg,#c9c4ef,transparent) bottom right / 38px 1px;
+  background-repeat: no-repeat;
 }
-.portrait {width: 100%; height: 100%; display: block; border-radius: 50%}
+.portrait {width: 100%; height: auto; display: block; border-radius: 3px}
+.identity h1 span {display: block}
+@media (prefers-reduced-motion: no-preference) {
+  .identity h1 span {animation: arrive-name 2.2s cubic-bezier(.17,.66,.2,1) .35s both}
+  .identity h1 em {animation: arrive-name 2.5s cubic-bezier(.17,.66,.2,1) .95s both}
+  .identity p {animation: arrive-name 1.6s ease-out 2.2s both}
+  .portrait-frame::before, .portrait-frame::after {animation: trace-frame 2s ease-out 2.7s both}
+}
+@keyframes arrive-name {
+  from {opacity: 0; transform: translate(-.2em,.22em); filter: blur(8px)}
+  55% {opacity: .84}
+  to {opacity: 1; transform: translate(0); filter: blur(0)}
+}
+@keyframes trace-frame {from {opacity: 0; scale: 1.05} to {opacity: 1; scale: 1}}
 .gathering {position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none}
 .resting-dragon {position: absolute; right: 6%; top: 8%; width: clamp(90px,19vw,270px); pointer-events: none}
 body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display: none}
@@ -64,22 +79,18 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
 .solar-nav {
   position: relative;
   padding: clamp(2.2rem,6vw,5.6rem) max(4%,calc((100% - 1200px)/2)) 3rem;
-  background: radial-gradient(ellipse at 48% 52%, #1c2338cf, #080e1deb 75%);
-  border-block: 1px solid #bbb9d735;
+  background: radial-gradient(ellipse at 50% 53%, #16192b38, transparent 72%);
 }
 .map-heading {display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-inline: 2%}
 .map-heading h2 {font-size: clamp(2.35rem,5.2vw,4.8rem); line-height: 1.15}
 .map-heading em {font-weight: 400; color: #d4cbfc}
-.orbit-toggle {
-  position: relative; z-index: 11; flex-shrink: 0; min-height: 44px; padding: .45rem .9rem;
-  background: #0e1529; color: #edebfa; border: 1px solid #b7b7d158; border-radius: 2rem;
-  font: inherit; font-size: .94rem; cursor: pointer;
-}
+.map-credit {display: block; font-size: .8rem; color: #c4bed1; margin: 1.5rem 2% 0}
+.map-credit a {position: relative; z-index: 11; color: inherit}
 .orbit-map {
   position: relative; display: grid; grid-template-columns: repeat(3,1fr);
   gap: 1.1rem; margin: 1.8rem auto 0; max-width: 1150px;
 }
-.orbit-map.ready {display: block; height: clamp(365px,37vw,465px)}
+.orbit-map.ready {display: block; height: clamp(405px,41vw,520px)}
 .sun, .globe {
   background-image: url("worlds.webp"); background-size: 1000% 100%; background-repeat: no-repeat;
   border-radius: 50%; aspect-ratio: 1;
@@ -92,7 +103,7 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
 .ready .sun {display: block}
 .track {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  border: 1px solid #c7c2e134; border-radius: 50%; pointer-events: none;
+  border: 1px solid #c7c2e129; border-radius: 50%; pointer-events: none;
 }
 .world {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -108,6 +119,11 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
   content: ""; position: absolute; inset: 30% -30%; border: 3px double #ead1a7ba;
   border-top-color: transparent; border-left-color: transparent; border-radius: 50%; transform: rotate(-23deg);
 }
+.globe {translate: var(--body-x,0px) var(--body-y,0px)}
+.mapped-surface {background-image: none; filter: none}
+.world .mapped-surface::after {display: none}
+.mapped-surface canvas {position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; transform: translate(-50%,-50%); pointer-events: none}
+.mapped-surface.ringed canvas {width: 225%; height: 225%}
 .world-name {
   margin-top: .18rem; color: inherit; font: 400 clamp(.94rem,1.6vw,1.27rem)/1.25 var(--serif);
   white-space: nowrap; text-shadow: 0 1px 6px #070b17,0 0 10px #070b17;
@@ -128,7 +144,7 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
 .controls {position: fixed; z-index: 14}
 @media (max-width: 650px) {
   .arrival-layout {width: 88%; padding: 5.5rem 0 7.3rem; grid-template-columns: 1fr; justify-items: center; gap: 2.3rem}
-  .portrait-frame {grid-row: 1; width: clamp(150px,min(51vw,30svh),240px)}
+  .portrait-frame {grid-row: 1; width: clamp(166px,min(61vw,32svh),275px)}
   .identity {text-align: center}
   .identity h1 {font-size: clamp(3.1rem,10.4vw,4.8rem)}
   .identity p {font-size: 1rem; margin: 1rem auto 0}
@@ -137,10 +153,9 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
   .orbit-map.ready {height: clamp(480px,78svh,640px)}
   .solar-nav {padding-inline: 10px}
   .world-name {font-size: .94rem}
-  .orbit-toggle {font-size: .88rem}
   .globe {max-width: 36px}
 }
 @media (min-width: 651px) and (max-height: 540px) {
   .arrival-layout {padding-block: 4rem}
-  .portrait-frame {width: min(27vw,48svh)}
+  .portrait-frame {width: min(29vw,53svh)}
 }

@@ -42,6 +42,12 @@ export function startFlight(root, heroElement, assetURL = name => name) {
       const hero=heroElement?.getBoundingClientRect() ?? {right:width*.9,top:0,width:width*.75};
       x=clamp(hero.right-size*.46,size*.43,width-size*.43);
       y=clamp(hero.top+hero.width*.336*.58,60,height*.45);
+      // Leave the portrait's face and the incoming name clear at launch.
+      const portrait = heroElement?.querySelector(".portrait-frame")?.getBoundingClientRect();
+      if (portrait && hero.top >= -1) {
+        x = clamp(portrait.right + size * .22, size * .43, width - size * .43);
+        y = clamp(portrait.top - size * .18, size * .24, height * .22);
+      }
     } else {
       x*=width/oldW; y*=height/oldH;
     }
