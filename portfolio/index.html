@@ -12,19 +12,46 @@
   <link rel="icon" href="dragon-start.webp" type="image/webp">
   <link rel="stylesheet" href="scene.css?v=7">
   <link rel="stylesheet" href="certificates.css">
+  <link rel="stylesheet" href="celestial.css">
 </head>
 <body>
   <div id="deep-sky" aria-hidden="true"><canvas id="stars"></canvas></div>
+  <header class="arrival" id="arrival">
+    <div class="arrival-layout">
+      <div class="identity">
+        <h1>Benjamin <em>Franklin A</em></h1>
+        <p>Second-year Computer Science and Engineering Student at SKCET</p>
+      </div>
+      <div class="portrait-frame">
+        <img class="portrait" src="portrait.webp" width="640" height="640" fetchpriority="high" alt="Portrait of Benjamin Franklin A">
+      </div>
+    </div>
+    <canvas class="gathering" aria-hidden="true"></canvas>
+    <img class="resting-dragon" src="dragon-start.webp" alt="" width="180">
+    <a class="scroll-cue" href="#solar-system">Scroll to explore</a>
+  </header>
+
+  <nav class="solar-nav" id="solar-system" aria-labelledby="solar-heading">
+    <div class="map-heading">
+      <h2 id="solar-heading">Explore <em>my orbit</em></h2>
+      <button type="button" class="orbit-toggle" hidden>Pause orbits</button>
+    </div>
+    <div class="orbit-map">
+      <div class="sun" aria-hidden="true"></div>
+      <a class="world" href="#about" style="--sprite:0.0000%"><span class="globe" aria-hidden="true"></span><span class="world-name">About</span></a>
+      <a class="world" href="#projects" style="--sprite:11.1111%"><span class="globe" aria-hidden="true"></span><span class="world-name">Projects</span></a>
+      <a class="world" href="#experience" style="--sprite:22.2222%"><span class="globe" aria-hidden="true"></span><span class="world-name">Experience</span></a>
+      <a class="world" href="#certificates" style="--sprite:33.3333%"><span class="globe" aria-hidden="true"></span><span class="world-name">Certificates</span></a>
+      <a class="world" href="#recognition" style="--sprite:44.4444%"><span class="globe" aria-hidden="true"></span><span class="world-name">Recognition</span></a>
+      <a class="world" href="#skills" style="--sprite:55.5556%"><span class="globe" aria-hidden="true"></span><span class="world-name">Skills</span></a>
+      <a class="world" href="#learning" style="--sprite:66.6667%"><span class="globe" aria-hidden="true"></span><span class="world-name">Learning</span></a>
+      <a class="world" href="#activity" style="--sprite:77.7778%"><span class="globe" aria-hidden="true"></span><span class="world-name">GitHub activity</span></a>
+      <a class="world" href="#contact" style="--sprite:88.8889%"><span class="globe" aria-hidden="true"></span><span class="world-name">Contact</span></a>
+    </div>
+  </nav>
+
   <main class="profile" aria-label="Benjamin Franklin A’s portfolio">
     <!-- profile start -->
-<h1>
-  <picture>
-      <source media="(prefers-reduced-motion: reduce)" srcset="assets/still/banner.webp">
-      <img src="banner.svg" width="100%" alt="Benjamin Franklin A">
-    </picture>
-</h1>
-<p>Second-year Computer Science and Engineering Student at SKCET</p>
-<p><a href="#about"><img src="assets/links/nav-about.svg" width="80" height="34" align="absmiddle" alt="About" style="max-width: 100%; height: auto; max-height: 34px;"></a> · <a href="#projects"><img src="assets/links/nav-projects.svg" width="93" height="34" align="absmiddle" alt="Projects" style="max-width: 100%; height: auto; max-height: 34px;"></a> · <a href="#experience"><img src="assets/links/nav-experience.svg" width="112" height="34" align="absmiddle" alt="Experience" style="max-width: 100%; height: auto; max-height: 34px;"></a> · <a href="#certificates"><img src="assets/links/nav-certificates.svg" width="119" height="34" align="absmiddle" alt="Certificates"></a> · <a href="#recognition"><img src="assets/links/nav-recognition.svg" width="119" height="34" align="absmiddle" alt="Recognition" style="max-width: 100%; height: auto; max-height: 34px;"></a> · <a href="#skills"><img src="assets/links/nav-skills.svg" width="69" height="34" align="absmiddle" alt="Skills" style="max-width: 100%; height: auto; max-height: 34px;"></a> · <a href="#learning"><img src="assets/links/nav-learning.svg" width="96" height="34" align="absmiddle" alt="Learning" style="max-width: 100%; height: auto; max-height: 34px;"></a> · <a href="#contact"><img src="assets/links/nav-contact.svg" width="87" height="34" align="absmiddle" alt="Contact" style="max-width: 100%; height: auto; max-height: 34px;"></a></p>
 <h2 id="about"><picture><img src="assets/icons/about.svg" width="36" height="28" align="texttop" alt=""></picture>About</h2>
 <p>Second-year <strong>B.E. Computer Science and Engineering</strong> student with a strong foundation in C++, Java, SQL, web technologies, and cloud computing.<br>
 Completed a C++ programming internship at Thiranex, serves as an <strong>AWS Student Builder Campus Leader</strong> and <strong>GeeksforGeeks Campus Mantri</strong>, and builds AI-assisted applications with Amazon Bedrock, Kiro, and Claude. Won <strong>first place at EUREKA! 2026</strong> (E-Cell, IIT Bombay) and focuses on software development, AI-enabled applications, and practical problem-solving.</p>
@@ -158,8 +185,9 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
     import "./certificates.js";
     import "./sky.js";
     import { startFlight } from "./scene.js?v=7";
-    startFlight(document, document.querySelector(".profile h1"));
+    startFlight(document, document.querySelector(".arrival"));
     import "./activity.js";
   </script>
+  <script type="module" src="celestial.js"></script>
 </body>
 </html>
