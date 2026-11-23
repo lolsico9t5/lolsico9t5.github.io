@@ -25,9 +25,9 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   const blend = (rate,dt) => 1-Math.exp(-rate*dt);
   let width=1,height=1,size=180,x,y,vx=0,vy=0,face=-1,heading=Math.PI,headingRate=0,roll=0,pitch=0,phase=0,heat=0;
   let turn=null, lastPreference=reduced.matches;
-  let placed=false, wingLoad=.85, dockBounds, pitchRate=0, tailLean=0;
-  let active=!reduced.matches, drag=null, rig=null, frame=0, previous=0, elapsed=0, idle=0;
-  let burst=0, firePointer=null, space=false, demo=!reduced.matches, helpTime=7;
+  let coastTime=0, wingLoad=.85, dockBounds, pitchRate=0, tailLean=0;
+  let active=!reduced.matches, drag=null, rig=null, frame=0, previous=0, elapsed=0;
+  let burst=0, fireLatched=false, space=false, demo=!reduced.matches, helpTime=7;
   let orbitAngle=null, orbitDirection=1;
 
   // Fixed screen coordinates keep the dragon within reach at every scroll position.
@@ -56,7 +56,6 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     dockBounds=land.parentElement.getBoundingClientRect();
     turn=null; effects.resize(width,height);
     if(drag) positionInHand();
-    else if(placed) placeAt(x,y);
     else constrain(flightArea());
     paint(0); request();
   }
@@ -131,30 +130,28 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     // A flick released partly over an edge starts there and banks back into the normal flight area.
     box.left=Math.min(box.left,x); box.right=Math.max(box.right,x);
     box.top=Math.min(box.top,y); box.bottom=Math.max(box.bottom,y);
-    if(!drag && !placed && !turn && !cameraMoving) turn=planEdgeTurn(x,y,vx,vy,box,size);
+    if(!drag && !turn && !cameraMoving && !fireLatched) turn=planEdgeTurn(x,y,vx,vy,box,size);
     const banking=Boolean(turn);
-    if(banking || drag || keys.size || placed || idle<=3.2) orbitAngle=null;
+    if(banking || drag || keys.size || coastTime>0) orbitAngle=null;
     if(turn) {
       const next=advanceEdgeTurn(turn,dt);
       x=next.x; y=next.y; vx=next.vx; vy=next.vy;
-      if(next.done) {turn=null;idle=0;}
+      if(next.done) turn=null;
     } else if(drag) {
       // Pointer events own the position. Velocity only steers the pose while held.
       if(performance.now()-drag.lastMove>65) {vx*=Math.exp(-dt*20);vy*=Math.exp(-dt*20);}
       if(drag.moved) pan(nearEdge(drag.py,Math.min(96,height*.16)),dt);
-      idle=0;
     } else if(kx || ky) {
       const norm=Math.hypot(kx,ky), speed=Math.min(570,width*1.13);
       vx+=(kx/norm*speed-vx)*blend(9,dt); vy+=(ky/norm*speed-vy)*blend(9,dt);
       x+=vx*dt;y+=vy*dt;
       if(ky) pan(nearEdge(y,Math.min(height*.35,size*.24+160)),dt);
-      idle=0;
     } else {
-      idle+=dt;
-      if(!placed && idle>3.2 && !reduced.matches) {
+      coastTime=Math.max(0,coastTime-dt);
+      if(coastTime===0) {
         cruise(box,dt);
-      } else if(!placed) {
-        // Trade forward momentum for a shallow descent. A gentle drop stays anchored.
+      } else {
+        // A flick keeps its momentum briefly before rejoining free flight.
         const airspeed=Math.hypot(vx,vy);
         const sink=clamp(Math.abs(vx)*.14,0,38);
         vx*=Math.exp(-(1.04+airspeed/1750)*dt);
@@ -180,10 +177,10 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     const targetPitch=clamp(Math.atan2(vy,Math.max(95,Math.abs(vx)))*.64,-.54,.51);
     [pitch,pitchRate]=follow(pitch,pitchRate,targetPitch,dt,7.4);
     // Begin the bank as the gaze turns. Level out progressively as the turn finishes.
-    const bankGoal=-clamp(headingRate*.14+steerLead*.24,-.76,.76);
+    const bankGoal=fireLatched ? 0 : -clamp(headingRate*.14+steerLead*.24,-.76,.76);
     roll+=(bankGoal-roll)*blend(5.9,dt);
     tailLean+=(clamp(pitchRate*.18+roll*.54,-.7,.7)-tailLean)*blend(3.8,dt);
-    if(!drag && !placed) constrain(box);
+    if(!drag) constrain(box);
   }
   function smooth(a,b,v) {
     const t=clamp((v-a)/(b-a),0,1);
@@ -195,7 +192,7 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     const yaw=Math.cos(heading);
     const bank=clamp(Math.sin(pitch)*yaw+roll,-1,1);
     const climb=clamp(-vy/370,0,1);
-    const glide=!drag && !placed && !keys.size
+    const glide=!drag && !keys.size
       ? smooth(.055,.32,pace)*(1-smooth(.06,.52,climb))*(1-smooth(.15,.6,Math.abs(roll))) : 0;
     const targetLoad=.85+.22*climb+.12*Math.abs(bank)-.73*glide;
     wingLoad+=(targetLoad-wingLoad)*blend(2.8,dt);
@@ -232,7 +229,9 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     if(demo && elapsed>1.15) {burst=.72;demo=false;}
     if(helpTime>0 && (helpTime-=dt)<=0) showHelp(false);
     burst=Math.max(0,burst-dt);
-    const firing=burst>0 || firePointer!==null || space;
+    // A bank interrupted by the fire control eases level before the flame
+    // catches. Translation and wingbeats continue throughout the maneuver.
+    const firing=burst>0 || (fireLatched && Math.abs(roll)<.16) || space;
     heat+=((firing?1:0)-heat)*blend(firing?15:8,dt);
     steer(dt);paint(dt);request();
   }
@@ -241,19 +240,19 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     help.setAttribute("aria-expanded",String(show));
   }
   function engage() {
-    demo=false; idle=0;
+    demo=false; coastTime=0;
     if(!active) setActive(true);
   }
   function clearInputs() {
     if(drag) {
       const id=drag.id;
-      drag=null; placed=true; vx=vy=0; turn=null;
+      drag=null; vx=vy=0; turn=null;
       if(dragon.hasPointerCapture(id)) dragon.releasePointerCapture(id);
     }
-    keys.clear();space=false;firePointer=null;burst=0;
+    keys.clear();space=false;burst=0;setFire(false);
   }
   function setActive(value) {
-    active=value;clearInputs();turn=null;placed=false;idle=0;vx=vy=0;heat=0;
+    active=value;clearInputs();turn=null;coastTime=0;vx=vy=0;heat=0;
     dragon.hidden=!value; fire.hidden=!value; land.textContent=value?"Land dragon":"Launch dragon";
     effects.clear();previous=0;
     if(!value) { cancelAnimationFrame(frame);frame=0;showHelp(false); }
@@ -311,10 +310,9 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     if(e.type==="pointerup") recordPointer(e);
     const moved=drag.moved, flick=e.type==="pointerup" ? dropVelocity(e) : null;
     const id=drag.id;
-    drag=null; idle=0;
+    drag=null; coastTime=flick ? .75 : 0;
     if(dragon.hasPointerCapture(id)) dragon.releasePointerCapture(id);
     vx=flick?.x ?? 0; vy=flick?.y ?? 0;
-    if(moved || e.type!=="pointerup") placed=!flick;
     if(flick && Math.hypot(vx,vy)>360) burst=.43;
     if(!moved && e.type==="pointerup") burst=.70;
     request();
@@ -329,18 +327,19 @@ export function startFlight(root, heroElement, assetURL = name => name) {
   window.addEventListener("pointercancel",release,pointerEvents);
   dragon.addEventListener("lostpointercapture",release);
   dragon.addEventListener("click",e=>{ if(e.detail===0) {engage();burst=.7;} });
-  fire.addEventListener("pointerdown",e=>{
-    if(e.button!==0 || firePointer!==null) return;
-    engage(); firePointer=e.pointerId;burst=.52;fire.setPointerCapture(e.pointerId);
-  });
-  for(const type of ["pointerup","pointercancel","lostpointercapture"]) fire.addEventListener(type,e=>{if(e.pointerId===firePointer) firePointer=null;});
-  fire.addEventListener("click",e=>{if(e.detail===0) {engage();burst=.72;}});
+  function setFire(value) {
+    fireLatched=value;
+    fire.querySelector("span").textContent=value ? "Break fire" : "Breathe fire";
+    if (value) {demo=false; turn=null; burst=0;}
+    else {burst=0; space=false;}
+  }
+  fire.addEventListener("click",()=>setFire(!fireLatched),events);
   land.addEventListener("click",()=>{demo=false;setActive(!active);if(active) dragon.focus({preventScroll:true});});
   help.addEventListener("click",()=>{helpTime=0;showHelp(guide.hidden);});
   document.addEventListener("keydown",e=>{
     const origin=e.composedPath()[0];
     if(!active || e.ctrlKey || e.metaKey || e.altKey || origin!==dragon) return;
-    if(e.code in directions) {e.preventDefault();engage();placed=false;delete dragon.dataset.pointerFocus;if(!keys.has(e.code)) turn=null;keys.add(e.code);}
+    if(e.code in directions) {e.preventDefault();engage();delete dragon.dataset.pointerFocus;if(!keys.has(e.code)) turn=null;keys.add(e.code);}
     if(e.code==="Space") {e.preventDefault();engage();space=true;if(!e.repeat) burst=.48;}
   },events);
   document.addEventListener("keyup",e=>{keys.delete(e.code);if(e.code==="Space") space=false;},events);

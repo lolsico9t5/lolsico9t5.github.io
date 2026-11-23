@@ -1,0 +1,12 @@
+Planet artwork attribution
+
+The surface maps and Saturn ring texture in surfaces.webp are adapted from
+Solar System Scope (INOVE): https://www.solarsystemscope.com/textures/
+Licensed under Creative Commons Attribution 4.0 International:
+https://creativecommons.org/licenses/by/4.0/
+
+Maps were resized, combined into a WebP atlas, and rendered with animated
+longitude, illumination, atmospheric shading, and rings. Earth combines the
+day and cloud maps. The gas and ice giants include illustrative weather
+features for visibility at small sizes. Ceres uses the collection's
+illustrative Ceres map.
