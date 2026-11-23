@@ -130,6 +130,16 @@ async function gatherPortrait() {
 
 function orbitNavigation() {
   const map = document.querySelector(".orbit-map");
+  const viewport = map.parentElement;
+  const panControl = document.querySelector(".orbit-pan");
+  const panSlider = panControl.querySelector("input");
+  let panDistance = 0;
+  panSlider.addEventListener("input", () => {
+    viewport.scrollLeft = panDistance * panSlider.valueAsNumber / 100;
+  });
+  viewport.addEventListener("scroll", () => {
+    if (panDistance > 0) panSlider.value = Math.round(100 * viewport.scrollLeft / panDistance);
+  }, {passive:true});
   const worlds = Array.from(map.querySelectorAll(".world"));
   // Earth, Mars, Jupiter, Saturn, Mercury, Uranus, Venus, Neptune, and Ceres.
   // Compress orbital distances for legible navigation, keeping their order.
@@ -244,7 +254,7 @@ function orbitNavigation() {
     });
     radiusX = Math.max(1, width / 2 - (width < 440 ? 49 : 65));
     radiusY = Math.max(1, height / 2 - 54);
-    const compression = width < 620 ? .64 : .18;
+    const compression = width > viewport.clientWidth ? .52 : width < 620 ? .64 : .18;
     scales = orbitalRadii.map(radius=>compression+(1-compression)*radius);
     arcLengths = [0];
     for(let i=1;i<=arcSteps;i++) {
@@ -259,6 +269,14 @@ function orbitNavigation() {
       ring.style.height = 2 * radiusY * scale * Math.sqrt(1-e*e) + "px";
     });
     place(true);
+    const overflow = Math.max(0, width - viewport.clientWidth);
+    if (overflow !== panDistance) {
+      const fraction = panDistance ? panSlider.valueAsNumber / 100 : .5;
+      panDistance = overflow;
+      panControl.hidden = overflow === 0;
+      viewport.scrollLeft = overflow * fraction;
+      panSlider.value = Math.round(fraction * 100);
+    }
   }
   function tick(time) {
     const delta = previous ? (time - previous) / 1000 : 0;
@@ -294,7 +312,9 @@ function orbitNavigation() {
   for(const type of ["pointerup","pointercancel","blur"]) window.addEventListener(type,()=>{pressing=false;});
   motionPreference.addEventListener("change", sync);
   document.addEventListener("visibilitychange", sync);
-  new ResizeObserver(measure).observe(map);
+  const resizeObserver = new ResizeObserver(measure);
+  resizeObserver.observe(map);
+  resizeObserver.observe(viewport);
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible) { map.classList.add("charted"); showSurfaces(); }

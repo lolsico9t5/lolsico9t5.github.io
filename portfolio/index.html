@@ -12,7 +12,7 @@
   <link rel="icon" href="dragon-start.webp" type="image/webp">
   <link rel="stylesheet" href="scene.css?v=7">
   <link rel="stylesheet" href="certificates.css">
-  <link rel="stylesheet" href="celestial.css?v=3">
+  <link rel="stylesheet" href="celestial.css?v=4">
   <script>
     if (location.hash.length < 2 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.add("awaiting-portrait");
@@ -42,18 +42,24 @@
     <div class="map-heading">
       <h2 id="solar-heading">Explore <em>my orbit</em></h2>
     </div>
-    <div class="orbit-map">
-      <div class="sun" aria-hidden="true"></div>
-      <a class="world" href="#about" style="--sprite:0.0000%"><span class="globe" aria-hidden="true"></span><span class="world-name">About</span><span class="planet-name">Earth</span></a>
-      <a class="world" href="#projects" style="--sprite:11.1111%"><span class="globe" aria-hidden="true"></span><span class="world-name">Projects</span><span class="planet-name">Mars</span></a>
-      <a class="world" href="#experience" style="--sprite:22.2222%"><span class="globe" aria-hidden="true"></span><span class="world-name">Experience</span><span class="planet-name">Jupiter</span></a>
-      <a class="world" href="#certificates" style="--sprite:33.3333%"><span class="globe" aria-hidden="true"></span><span class="world-name">Certificates</span><span class="planet-name">Saturn</span></a>
-      <a class="world" href="#recognition" style="--sprite:44.4444%"><span class="globe" aria-hidden="true"></span><span class="world-name">Recognition</span><span class="planet-name">Mercury</span></a>
-      <a class="world" href="#skills" style="--sprite:55.5556%"><span class="globe" aria-hidden="true"></span><span class="world-name">Skills</span><span class="planet-name">Uranus</span></a>
-      <a class="world" href="#learning" style="--sprite:66.6667%"><span class="globe" aria-hidden="true"></span><span class="world-name">Learning</span><span class="planet-name">Venus</span></a>
-      <a class="world" href="#activity" style="--sprite:77.7778%"><span class="globe" aria-hidden="true"></span><span class="world-name">GitHub activity</span><span class="planet-name">Neptune</span></a>
-      <a class="world" href="#contact" style="--sprite:88.8889%"><span class="globe" aria-hidden="true"></span><span class="world-name">Contact</span><span class="planet-name">Ceres</span></a>
+    <div class="orbit-viewport">
+      <div class="orbit-map">
+        <div class="sun" aria-hidden="true"></div>
+        <a class="world" href="#about" style="--sprite:0.0000%"><span class="globe" aria-hidden="true"></span><span class="world-name">About</span><span class="planet-name">Earth</span></a>
+        <a class="world" href="#projects" style="--sprite:11.1111%"><span class="globe" aria-hidden="true"></span><span class="world-name">Projects</span><span class="planet-name">Mars</span></a>
+        <a class="world" href="#experience" style="--sprite:22.2222%"><span class="globe" aria-hidden="true"></span><span class="world-name">Experience</span><span class="planet-name">Jupiter</span></a>
+        <a class="world" href="#certificates" style="--sprite:33.3333%"><span class="globe" aria-hidden="true"></span><span class="world-name">Certificates</span><span class="planet-name">Saturn</span></a>
+        <a class="world" href="#recognition" style="--sprite:44.4444%"><span class="globe" aria-hidden="true"></span><span class="world-name">Recognition</span><span class="planet-name">Mercury</span></a>
+        <a class="world" href="#skills" style="--sprite:55.5556%"><span class="globe" aria-hidden="true"></span><span class="world-name">Skills</span><span class="planet-name">Uranus</span></a>
+        <a class="world" href="#learning" style="--sprite:66.6667%"><span class="globe" aria-hidden="true"></span><span class="world-name">Learning</span><span class="planet-name">Venus</span></a>
+        <a class="world" href="#activity" style="--sprite:77.7778%"><span class="globe" aria-hidden="true"></span><span class="world-name">GitHub activity</span><span class="planet-name">Neptune</span></a>
+        <a class="world" href="#contact" style="--sprite:88.8889%"><span class="globe" aria-hidden="true"></span><span class="world-name">Contact</span><span class="planet-name">Ceres</span></a>
+      </div>
     </div>
+    <label class="orbit-pan" hidden>
+      <span>Swipe to explore</span>
+      <input type="range" min="0" max="100" value="50" aria-label="Pan across the solar system">
+    </label>
   </nav>
 
   <main class="profile" aria-label="Benjamin Franklin A’s portfolio">
@@ -194,6 +200,6 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
     startFlight(document, document.querySelector(".arrival"));
     import "./activity.js";
   </script>
-  <script type="module" src="celestial.js?v=3"></script>
+  <script type="module" src="celestial.js?v=4"></script>
 </body>
 </html>
