@@ -112,12 +112,15 @@ export function startFlight(root, heroElement, assetURL = name => name) {
       const forward=Math.hypot(vx,vy)>20 ? vx : face*30;
       orbitDirection=(-rx*Math.sin(orbitAngle)*forward+ry*Math.cos(orbitAngle)*vy)<0 ? -1 : 1;
     }
-    const speed=Math.min(145,width*.25);
+    // Ease through the climb and carry a little extra speed into the descent.
+    const speed=Math.min(148,width*.25)*(1+.14*orbitDirection*Math.cos(orbitAngle));
     const angularSpeed=orbitDirection*Math.min(.63,speed/Math.hypot(rx*Math.sin(orbitAngle),ry*Math.cos(orbitAngle)));
     orbitAngle+=angularSpeed*dt;
     const c=Math.cos(orbitAngle),s=Math.sin(orbitAngle);
     const targetX=-rx*s*angularSpeed+clamp(cx+rx*c-x,-speed,speed);
-    const targetY= ry*c*angularSpeed+clamp(cy+ry*s-y,-speed*.65,speed*.65);
+    const sweep=Math.sin(2*orbitAngle+.6)*.17;
+    const slope=c+.34*Math.cos(2*orbitAngle+.6);
+    const targetY=ry*slope*angularSpeed+clamp(cy+ry*(s+sweep)-y,-speed*.65,speed*.65);
     vx+=(targetX-vx)*blend(1.85,dt);
     vy+=(targetY-vy)*blend(1.85,dt);
   }
@@ -377,7 +380,7 @@ export function startFlight(root, heroElement, assetURL = name => name) {
     const previewTimer=setTimeout(()=>{if(!rig && active) loadAtlas();},350);
     try {
       if(!rig) {
-        const {createDragonModel}=await import("./dragon-model.js?v=7");
+        const {createDragonModel}=await import("./dragon-model.js?v=8");
         if(lifecycle.signal.aborted) return;
         const model=await createDragonModel(rigCanvas,assetURL("flight-dragon.glb"));
         if(lifecycle.signal.aborted) {model.dispose();return;}

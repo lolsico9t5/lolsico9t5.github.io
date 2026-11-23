@@ -65,18 +65,38 @@ function surface(host, index, atlas) {
     const lx = -Math.cos(angle), ly = Math.sin(angle)*.74, lz = -Math.sin(angle)*.673;
     const halfLength = Math.hypot(lx,ly,1+lz);
     const hx=lx/halfLength, hy=ly/halfLength, hz=(1+lz)/halfLength;
+    const cloudDrift = 2.4 + seconds*.38;
+    const ringLight = .94*(lx*sin+ly*cos)+.34*lz;
     for (let i=0; i<dst.length; i++) {
       const longitude=u[i]+shift+drift*wind[i], col=Math.floor(longitude), blend=longitude-col;
       const a=(row[i]+(col & 511))*4, b=(row[i]+((col+1) & 511))*4, p=dst[i];
       const light=nx[i]*lx+ny[i]*ly+nz[i]*lz;
       const daylight=Math.max(0,light);
-      const shade=sun ? .68+.49*nz[i] : .27+.82*Math.sqrt(daylight)+.08*nz[i];
+      let shade=sun ? .68+.49*nz[i] : .27+.82*Math.sqrt(daylight)+.08*nz[i];
+      if(ringed && daylight>0 && Math.abs(ringLight)>.01) {
+        // Trace from the lit surface towards the sun through the ring plane.
+        const travel=-(.94*(nx[i]*sin+ny[i]*cos)+.34*nz[i])/ringLight;
+        if(travel>0) {
+          const radius=Math.sqrt(1+2*travel*light+travel*travel);
+          if(radius>=1.22 && radius<=2.16) {
+            const band=Math.floor((radius-1.22)/.94*(mapWidth-1));
+            shade*=1-.51*atlas[((10*mapHeight+2)*mapWidth+band)*4+3]/255;
+          }
+        }
+      }
       const haze=rim[i]*(.11+.85*daylight);
+      let cloud=0;
+      if(index===0) {
+        const pos=longitude+cloudDrift+wind[i]*1.7, cell=Math.floor(pos);
+        const cloudRow=2564*mapWidth+row[i];
+        const first=atlas[(cloudRow+(cell&511))*4], next=atlas[(cloudRow+((cell+1)&511))*4];
+        cloud=(first+(next-first)*(pos-cell))/255*.94;
+      }
       const ocean=index===0 && atlas[a+2]>atlas[a]*1.28 && light>0;
       const glint=ocean ? 90*Math.max(0,nx[i]*hx+ny[i]*hy+nz[i]*hz)**28 : 0;
       for(let c=0;c<3;c++) {
         const color=atlas[a+c]+(atlas[b+c]-atlas[a+c])*blend;
-        data[p+c]=color*shade+tint[c]*haze+glint;
+        data[p+c]=(color+(248-color)*cloud)*shade+tint[c]*haze+glint*(1-cloud);
       }
       data[p+3]=alpha[i];
     }
@@ -119,7 +139,7 @@ function cloudFeature(atlas, index, longitude, latitude, span, depth, pigment, s
 
 export async function loadSurfaces(hosts) {
   const image = new Image();
-  image.src = new URL("surfaces.webp", import.meta.url).href;
+  image.src = new URL("surfaces.webp?v=2", import.meta.url).href;
   await image.decode();
   const canvas = document.createElement("canvas");
   canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;

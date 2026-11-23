@@ -108,7 +108,7 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
   color: #f5edf7; text-decoration: none; padding: 4px; min-width: 44px; min-height: 44px;
   border-radius: 9px; z-index: 11;
 }
-.ready .world {position: absolute; left: 0; top: 0; transform: translate(var(--x), var(--y)) translate(-50%,-50%)}
+.ready .world {position: absolute; left: 0; top: 0; transform: translate(var(--x), var(--y)) translateX(-50%)}
 .globe {
   position: relative; width: var(--diameter,43px); display: block;
   background-position: var(--sprite) 50%; filter: drop-shadow(0 0 6px #acc9ff25);
@@ -126,23 +126,49 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
   margin-top: .18rem; color: inherit; font: 400 clamp(.94rem,1.6vw,1.27rem)/1.25 var(--serif);
   white-space: nowrap; text-shadow: 0 1px 6px #070b17,0 0 10px #070b17;
 }
-.planet-name {
-  color: #c1bacf; font: 500 .66rem/1.5 system-ui,sans-serif;
-  letter-spacing: .12em; text-transform: uppercase;
-}
 .world:hover, .world:focus-visible {color: #ffdd99; text-decoration: underline; text-underline-offset: .24em}
 .world:hover .globe, .world:focus-visible .globe {filter: drop-shadow(0 0 8px #ffe2b588)}
 @media (prefers-reduced-motion: no-preference) {
-  .charted .world > span {animation: orbit-arrival 1.1s ease-out both}
-  .charted .world:nth-of-type(even) > span {animation-delay: .1s}
+  html {scroll-behavior: smooth}
+  .charted .track, .charted .sun {animation: chart-in 1.4s ease-out both}
+  .charted .world > span {animation: orbit-arrival 1s cubic-bezier(.22,.7,.28,1) both}
+  .charted .world:nth-of-type(3n+2) > span {animation-delay: .09s}
+  .charted .world:nth-of-type(3n) > span {animation-delay: .18s}
+  .world, .globe {transition: color .22s, filter .28s}
+  .profile h2:target {animation: section-arrival 1.7s ease-out}
+  .cert-viewer {
+    opacity: 0; scale: .975;
+    transition: opacity .22s ease-out, scale .26s ease-out, overlay .26s allow-discrete, display .26s allow-discrete;
+  }
+  .cert-viewer[open] {opacity: 1; scale: 1}
+  .cert-viewer::backdrop {
+    opacity: 0;
+    transition: opacity .22s ease-out, overlay .22s allow-discrete, display .22s allow-discrete;
+  }
+  .cert-viewer[open]::backdrop {opacity: 1}
+  @starting-style {
+    .cert-viewer[open] {opacity: 0; scale: .975}
+    .cert-viewer[open]::backdrop {opacity: 0}
+  }
+  #creature :is(#texture,.flight-preview,#rig) {transition: opacity .24s ease-in-out}
+  #creature .flight-preview, #creature #rig {display: block; opacity: 0}
+  #creature.atlas-ready .flight-preview, #creature.rigged #rig {opacity: 1}
+  #creature.atlas-ready #texture, #creature.rigged #texture, #creature.rigged .flight-preview {
+    display: block; opacity: 0;
+  }
 }
+@keyframes section-arrival {from {text-shadow: 0 0 14px #ddd0ffb0} to {text-shadow: 0 0 14px transparent}}
+@keyframes chart-in {from {opacity: 0} to {opacity: 1}}
 @keyframes orbit-arrival {
-  from {opacity: 0; transform: translateY(7px)}
-  to {opacity: 1; transform: translateY(0)}
+  from {opacity: 0; scale: .93}
+  to {opacity: 1; scale: 1}
 }
 #flight {position: absolute; inset: 0; height: 100vh; height: 100dvh; z-index: auto}
 #effects {position: fixed; z-index: 9}
 #creature {position: fixed; z-index: 10}
+#creature :is(#texture,.flight-preview), .resting-dragon {
+  filter: hue-rotate(-13deg) saturate(1.16) contrast(1.08) drop-shadow(0 0 2px #9bb4f44d);
+}
 .controls {position: fixed; z-index: 14}
 @media (max-width: 650px) {
   .arrival-layout {width: 88%; padding: 5.5rem 0 7.3rem; grid-template-columns: 1fr; justify-items: center; gap: 2.3rem}
@@ -163,7 +189,7 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
     mask-image: linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent);
   }
   .orbit-map.ready {
-    width: clamp(590px,145vw,830px); height: clamp(365px,85vw,450px);
+    width: clamp(690px,145vw,830px); height: clamp(406px,85vw,450px);
     margin: .6rem 0 0;
   }
   .orbit-pan:not([hidden]) {
@@ -183,7 +209,6 @@ body:has(#flight:not([hidden]) #creature:not([hidden])) .resting-dragon {display
   .orbit-pan input::-moz-range-track {height: 3px; background: #615e73}
   .orbit-pan input::-moz-range-thumb {width: 26px; height: 7px; border: 0; border-radius: 1rem; background: var(--foil)}
   .world-name {font-size: 1rem}
-  .planet-name {font-size: .75rem}
   .globe {width: calc(var(--diameter) * .78)}
 }
 @media (min-width: 651px) and (max-height: 540px) {

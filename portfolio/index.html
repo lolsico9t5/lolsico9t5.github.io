@@ -8,11 +8,11 @@
   <meta name="description" content="Second-year Computer Science and Engineering Student at SKCET">
   <link rel="canonical" href="https://lolsico9t5.github.io/portfolio/">
   <link rel="preload" as="fetch" href="flight-dragon.glb" crossorigin="anonymous" media="(prefers-reduced-motion: no-preference)">
-  <link rel="modulepreload" href="./dragon-model.js?v=7" media="(prefers-reduced-motion: no-preference)">
+  <link rel="modulepreload" href="./dragon-model.js?v=8" media="(prefers-reduced-motion: no-preference)">
   <link rel="icon" href="dragon-start.webp" type="image/webp">
   <link rel="stylesheet" href="scene.css?v=7">
   <link rel="stylesheet" href="certificates.css">
-  <link rel="stylesheet" href="celestial.css?v=4">
+  <link rel="stylesheet" href="celestial.css?v=5">
   <script>
     if (location.hash.length < 2 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.add("awaiting-portrait");
@@ -45,15 +45,15 @@
     <div class="orbit-viewport">
       <div class="orbit-map">
         <div class="sun" aria-hidden="true"></div>
-        <a class="world" href="#about" style="--sprite:0.0000%"><span class="globe" aria-hidden="true"></span><span class="world-name">About</span><span class="planet-name">Earth</span></a>
-        <a class="world" href="#projects" style="--sprite:11.1111%"><span class="globe" aria-hidden="true"></span><span class="world-name">Projects</span><span class="planet-name">Mars</span></a>
-        <a class="world" href="#experience" style="--sprite:22.2222%"><span class="globe" aria-hidden="true"></span><span class="world-name">Experience</span><span class="planet-name">Jupiter</span></a>
-        <a class="world" href="#certificates" style="--sprite:33.3333%"><span class="globe" aria-hidden="true"></span><span class="world-name">Certificates</span><span class="planet-name">Saturn</span></a>
-        <a class="world" href="#recognition" style="--sprite:44.4444%"><span class="globe" aria-hidden="true"></span><span class="world-name">Recognition</span><span class="planet-name">Mercury</span></a>
-        <a class="world" href="#skills" style="--sprite:55.5556%"><span class="globe" aria-hidden="true"></span><span class="world-name">Skills</span><span class="planet-name">Uranus</span></a>
-        <a class="world" href="#learning" style="--sprite:66.6667%"><span class="globe" aria-hidden="true"></span><span class="world-name">Learning</span><span class="planet-name">Venus</span></a>
-        <a class="world" href="#activity" style="--sprite:77.7778%"><span class="globe" aria-hidden="true"></span><span class="world-name">GitHub activity</span><span class="planet-name">Neptune</span></a>
-        <a class="world" href="#contact" style="--sprite:88.8889%"><span class="globe" aria-hidden="true"></span><span class="world-name">Contact</span><span class="planet-name">Ceres</span></a>
+        <a class="world" href="#about" style="--sprite:0.0000%"><span class="globe" aria-hidden="true"></span><span class="world-name">About</span></a>
+        <a class="world" href="#projects" style="--sprite:11.1111%"><span class="globe" aria-hidden="true"></span><span class="world-name">Projects</span></a>
+        <a class="world" href="#experience" style="--sprite:22.2222%"><span class="globe" aria-hidden="true"></span><span class="world-name">Experience</span></a>
+        <a class="world" href="#certificates" style="--sprite:33.3333%"><span class="globe" aria-hidden="true"></span><span class="world-name">Certificates</span></a>
+        <a class="world" href="#recognition" style="--sprite:44.4444%"><span class="globe" aria-hidden="true"></span><span class="world-name">Recognition</span></a>
+        <a class="world" href="#skills" style="--sprite:55.5556%"><span class="globe" aria-hidden="true"></span><span class="world-name">Skills</span></a>
+        <a class="world" href="#learning" style="--sprite:66.6667%"><span class="globe" aria-hidden="true"></span><span class="world-name">Learning</span></a>
+        <a class="world" href="#activity" style="--sprite:77.7778%"><span class="globe" aria-hidden="true"></span><span class="world-name">GitHub activity</span></a>
+        <a class="world" href="#contact" style="--sprite:88.8889%"><span class="globe" aria-hidden="true"></span><span class="world-name">Contact</span></a>
       </div>
     </div>
     <label class="orbit-pan" hidden>
@@ -196,10 +196,10 @@ My Game Night Edition prompt became a playable game in <strong>Gemini Canvas</st
   <script type="module">
     import "./certificates.js";
     import "./sky.js";
-    import { startFlight } from "./scene.js?v=9";
+    import { startFlight } from "./scene.js?v=10";
     startFlight(document, document.querySelector(".arrival"));
     import "./activity.js";
   </script>
-  <script type="module" src="celestial.js?v=4"></script>
+  <script type="module" src="celestial.js?v=5"></script>
 </body>
 </html>
